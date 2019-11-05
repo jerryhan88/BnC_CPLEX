@@ -48,6 +48,9 @@ void knapSack(const std::vector<double>& values, const std::vector<int>& weights
     delete [] K;
 }
 
+
+
+
 bool Cover_cut::valid_subset(const std::set<edge>& S1) {
     if (generatedSets.find(S1) != generatedSets.end() ) {
         return false;

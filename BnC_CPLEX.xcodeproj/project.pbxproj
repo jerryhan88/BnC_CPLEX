@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8F20452D234DB7A800466945 /* TB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F20452B234DB7A800466945 /* TB.cpp */; };
 		8F2113DE23288B76001CF34C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F2113DD23288B76001CF34C /* main.cpp */; };
 		8F2113E623288E94001CF34C /* libconcert.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F2113E523288E94001CF34C /* libconcert.a */; };
 		8F2113EA23288EA5001CF34C /* libcplex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F2113E723288EA5001CF34C /* libcplex.a */; };
@@ -14,6 +15,10 @@
 		8F2113EC23288EA5001CF34C /* libcplexdistmip.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F2113E923288EA5001CF34C /* libcplexdistmip.a */; };
 		8F2113EF2328945F001CF34C /* Problem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F2113ED2328945F001CF34C /* Problem.cpp */; };
 		8F2113F623289AE3001CF34C /* Etc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F2113F423289AE3001CF34C /* Etc.cpp */; };
+		8F3E9490236A8A7C00077CE6 /* Sequencer.c in Sources */ = {isa = PBXBuildFile; fileRef = 8F3E948F236A8A7B00077CE6 /* Sequencer.c */; };
+		8F3EE70E2355AEFD004BB9BB /* IP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F3EE70D2355AEFD004BB9BB /* IP.cpp */; };
+		8F6CCDE423715C7A00F9CFB1 /* SE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F6CCDE323715C7A00F9CFB1 /* SE.cpp */; };
+		8F802BF523448CE5000D5AF1 /* RS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F802BF423448CE5000D5AF1 /* RS.cpp */; };
 		8FA1B1CA233E012400FF9F44 /* BaseMM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FA1B1C8233E012400FF9F44 /* BaseMM.cpp */; };
 		8FA1B1CD233E050800FF9F44 /* ILP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FA1B1CB233E050800FF9F44 /* ILP.cpp */; };
 		8FA1B1D1233F1DD800FF9F44 /* LP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FA1B1CF233F1DD800FF9F44 /* LP.cpp */; };
@@ -23,8 +28,8 @@
 		8FD3B197232B346500FCDDEC /* Base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FD3B195232B346500FCDDEC /* Base.cpp */; };
 		8FD3B19E232B36B800FCDDEC /* Graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FD3B19C232B36B800FCDDEC /* Graph.cpp */; };
 		8FD3B1A1232B389C00FCDDEC /* FordFulkersonAlgo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FD3B19F232B389C00FCDDEC /* FordFulkersonAlgo.cpp */; };
-		8FD3B1AA232C7E0700FCDDEC /* SE0.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FD3B1A8232C7E0700FCDDEC /* SE0.cpp */; };
 		8FD3B1AD232CE8CF00FCDDEC /* Cover.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FD3B1AB232CE8CF00FCDDEC /* Cover.cpp */; };
+		8FFBFBAD236A8727003151B9 /* IH.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FFBFBAB236A8727003151B9 /* IH.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,6 +45,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8F20452B234DB7A800466945 /* TB.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TB.cpp; sourceTree = "<group>"; };
+		8F20452C234DB7A800466945 /* TB.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TB.hpp; sourceTree = "<group>"; };
 		8F2113DA23288B76001CF34C /* BnC_CPLEX */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BnC_CPLEX; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F2113DD23288B76001CF34C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		8F2113E523288E94001CF34C /* libconcert.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libconcert.a; path = "../../../../Applications/CPLEX_Studio128/concert/lib/x86-64_osx/static_pic/libconcert.a"; sourceTree = "<group>"; };
@@ -50,6 +57,11 @@
 		8F2113EE2328945F001CF34C /* Problem.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Problem.hpp; sourceTree = "<group>"; };
 		8F2113F423289AE3001CF34C /* Etc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Etc.cpp; sourceTree = "<group>"; };
 		8F2113F523289AE3001CF34C /* Etc.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Etc.hpp; sourceTree = "<group>"; };
+		8F3E948E236A8A7B00077CE6 /* Sequencer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Sequencer.h; sourceTree = "<group>"; };
+		8F3E948F236A8A7B00077CE6 /* Sequencer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = Sequencer.c; sourceTree = "<group>"; };
+		8F3EE70D2355AEFD004BB9BB /* IP.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IP.cpp; sourceTree = "<group>"; };
+		8F6CCDE323715C7A00F9CFB1 /* SE.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SE.cpp; sourceTree = "<group>"; };
+		8F802BF423448CE5000D5AF1 /* RS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RS.cpp; sourceTree = "<group>"; };
 		8FA1B1C8233E012400FF9F44 /* BaseMM.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BaseMM.cpp; sourceTree = "<group>"; };
 		8FA1B1C9233E012400FF9F44 /* BaseMM.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BaseMM.hpp; sourceTree = "<group>"; };
 		8FA1B1CB233E050800FF9F44 /* ILP.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ILP.cpp; sourceTree = "<group>"; };
@@ -63,8 +75,9 @@
 		8FD3B19D232B36B800FCDDEC /* Graph.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Graph.hpp; sourceTree = "<group>"; };
 		8FD3B19F232B389C00FCDDEC /* FordFulkersonAlgo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FordFulkersonAlgo.cpp; sourceTree = "<group>"; };
 		8FD3B1A0232B389C00FCDDEC /* FordFulkersonAlgo.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = FordFulkersonAlgo.hpp; sourceTree = "<group>"; };
-		8FD3B1A8232C7E0700FCDDEC /* SE0.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SE0.cpp; sourceTree = "<group>"; };
 		8FD3B1AB232CE8CF00FCDDEC /* Cover.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Cover.cpp; sourceTree = "<group>"; };
+		8FFBFBAB236A8727003151B9 /* IH.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IH.cpp; sourceTree = "<group>"; };
+		8FFBFBAC236A8727003151B9 /* IH.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IH.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +115,7 @@
 		8F2113DC23288B76001CF34C /* BnC_CPLEX */ = {
 			isa = PBXGroup;
 			children = (
+				8FFBFBAA236A8544003151B9 /* GH */,
 				8FA1B1C7233E006800FF9F44 /* MathematicalModel */,
 				8FD3B19B232B363E00FCDDEC /* NetworkFlow */,
 				8FD3B194232B343100FCDDEC /* Cuts */,
@@ -143,9 +157,13 @@
 			children = (
 				8FD3B195232B346500FCDDEC /* Base.cpp */,
 				8FD3B196232B346500FCDDEC /* Base.hpp */,
-				8FD3B1A8232C7E0700FCDDEC /* SE0.cpp */,
+				8F20452B234DB7A800466945 /* TB.cpp */,
+				8F20452C234DB7A800466945 /* TB.hpp */,
+				8F6CCDE323715C7A00F9CFB1 /* SE.cpp */,
 				8FC0318C232F616700F7FAFD /* Capacity.cpp */,
+				8F802BF423448CE5000D5AF1 /* RS.cpp */,
 				8FD3B1AB232CE8CF00FCDDEC /* Cover.cpp */,
+				8F3EE70D2355AEFD004BB9BB /* IP.cpp */,
 			);
 			path = Cuts;
 			sourceTree = "<group>";
@@ -159,6 +177,17 @@
 				8FD3B1A0232B389C00FCDDEC /* FordFulkersonAlgo.hpp */,
 			);
 			path = NetworkFlow;
+			sourceTree = "<group>";
+		};
+		8FFBFBAA236A8544003151B9 /* GH */ = {
+			isa = PBXGroup;
+			children = (
+				8FFBFBAB236A8727003151B9 /* IH.cpp */,
+				8FFBFBAC236A8727003151B9 /* IH.hpp */,
+				8F3E948E236A8A7B00077CE6 /* Sequencer.h */,
+				8F3E948F236A8A7B00077CE6 /* Sequencer.c */,
+			);
+			path = GH;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -218,20 +247,25 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8F802BF523448CE5000D5AF1 /* RS.cpp in Sources */,
 				8FA1B1D1233F1DD800FF9F44 /* LP.cpp in Sources */,
 				8FA1B1D4233F565500FF9F44 /* BnC.cpp in Sources */,
 				8F2113F623289AE3001CF34C /* Etc.cpp in Sources */,
 				8FD3B19E232B36B800FCDDEC /* Graph.cpp in Sources */,
+				8F3E9490236A8A7C00077CE6 /* Sequencer.c in Sources */,
+				8F3EE70E2355AEFD004BB9BB /* IP.cpp in Sources */,
 				8F2113DE23288B76001CF34C /* main.cpp in Sources */,
 				8FD3B1A1232B389C00FCDDEC /* FordFulkersonAlgo.cpp in Sources */,
 				8FA1B1CA233E012400FF9F44 /* BaseMM.cpp in Sources */,
 				8FC0318E232F616700F7FAFD /* Capacity.cpp in Sources */,
 				8F2113EF2328945F001CF34C /* Problem.cpp in Sources */,
 				8FA1B1D7233F567400FF9F44 /* RC.cpp in Sources */,
+				8FFBFBAD236A8727003151B9 /* IH.cpp in Sources */,
 				8FD3B197232B346500FCDDEC /* Base.cpp in Sources */,
+				8F6CCDE423715C7A00F9CFB1 /* SE.cpp in Sources */,
 				8FA1B1CD233E050800FF9F44 /* ILP.cpp in Sources */,
+				8F20452D234DB7A800466945 /* TB.cpp in Sources */,
 				8FD3B1AD232CE8CF00FCDDEC /* Cover.cpp in Sources */,
-				8FD3B1AA232C7E0700FCDDEC /* SE0.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -361,13 +395,10 @@
 					/Applications/CPLEX_Studio128/cplex/include,
 					/Applications/CPLEX_Studio128/concert/include,
 					"/Users/ckhan/workspace/json-develop/single_include",
-					/Users/ckhan/workspace/boost_1_50_0,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"/Applications/CPLEX_Studio128/concert/lib/x86-64_osx/static_pic",
 					"/Applications/CPLEX_Studio128/cplex/lib/x86-64_osx/static_pic",
-					"/Users/ckhan/workspace/boost_1_50_0/bin.v2/libs/filesystem/build/darwin-4.2.1/release/link-static/threading-multi",
-					"/Users/ckhan/workspace/boost_1_50_0/bin.v2/libs/system/build/darwin-4.2.1/release/link-static/threading-multi",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -385,13 +416,10 @@
 					/Applications/CPLEX_Studio128/cplex/include,
 					/Applications/CPLEX_Studio128/concert/include,
 					"/Users/ckhan/workspace/json-develop/single_include",
-					/Users/ckhan/workspace/boost_1_50_0,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"/Applications/CPLEX_Studio128/concert/lib/x86-64_osx/static_pic",
 					"/Applications/CPLEX_Studio128/cplex/lib/x86-64_osx/static_pic",
-					"/Users/ckhan/workspace/boost_1_50_0/bin.v2/libs/filesystem/build/darwin-4.2.1/release/link-static/threading-multi",
-					"/Users/ckhan/workspace/boost_1_50_0/bin.v2/libs/system/build/darwin-4.2.1/release/link-static/threading-multi",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

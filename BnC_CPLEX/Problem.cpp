@@ -9,11 +9,15 @@
 #include "Problem.hpp"
 
 Problem::~Problem() {
-    std::vector<int*> ipV = {h_k, n_k, r_k, v_k, w_k,
-        al_i, be_i};
+    std::vector<int*> ipV = {h_k, n_k};
     for(auto p: ipV) {
         delete p;
     }
+    std::vector<double*> dpV = {r_k, v_k, w_k, al_i, be_i, v_i, w_i};
+    for(auto p: dpV) {
+        delete p;
+    }
+    
     for (int i = 0; i < N.size(); i++) {
         delete [] c_ij[i];
         delete [] t_ij[i];

@@ -1,5 +1,5 @@
 //
-//  SE0.cpp
+//  SE.cpp
 //  BnC_CPLEX
 //
 //  Created by Chung-Kyun HAN on 14/9/19.
@@ -8,10 +8,8 @@
 
 
 #include "Base.hpp"
-#include "../NetworkFlow/FordFulkersonAlgo.hpp"
 
-
-bool SE0_cut::valid_subset(const std::set<int>& S1, Problem *prob) {
+bool SE_cut::valid_subset(const std::set<int>& S1, Problem *prob) {
     if ( S1.size() <= 1 ||
         generatedSets.find(S1) != generatedSets.end() ) {
         return false;
@@ -37,19 +35,40 @@ bool SE0_cut::valid_subset(const std::set<int>& S1, Problem *prob) {
     }
 }
 
-std::set<std::set<int>> SE0_cut::solve_separationProb(double** x_ij, CutComposer* cc) {
+double get_LHS_SE0(const std::set<int>& S, double** x_ij, Problem* prob) {
+    double lhs = 0.0;
+    for (int i: S) {
+        for (int j: S) {
+            lhs += x_ij[i][j];
+        }
+    }
+    lhs -= ((int) S.size() - 1);
+    return lhs;
+}
+
+std::set<std::set<int>> solve_maxSE0(double** x_ij, Problem* prob) {
+    std::set<std::set<int>> outputSets;
+    run_TB4CG(x_ij, prob, get_LHS_SE0, outputSets);
+    return outputSets;
+}
+
+SE_cut::SE_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd) : CutBase(ch_name, cutManagerType, isLocalCutAdd) {
+    if (ch_name.substr(0, 1) == "e") {
+        separationAlgo = solve_multipleMaxFlow;
+    } else {
+        assert(ch_name.substr(0, 1) == "h");
+        separationAlgo = solve_maxSE0;
+    }
+}
+
+
+std::set<std::set<int>> SE_cut::solve_separationProb(double** x_ij, CutComposer* cc) {
     Problem *prob = cc->prob;
     std::set<std::set<int>> validSets;
-    std::set<std::set<int>> outputSets = solve_multipleMaxFlow(x_ij, prob);
+    std::set<std::set<int>> outputSets = separationAlgo(x_ij, prob);
     for (std::set<int> S1: outputSets) {
         if (valid_subset(S1, prob)) {
-            double lhs = 0.0;
-            for (int i: S1) {
-                for (int j: S1) {
-                    lhs += x_ij[i][j];
-                }
-            }
-            lhs -= ((int) S1.size() - 1);
+            double lhs = get_LHS_SE0(S1, x_ij, prob);
             if (lhs > 0) {
                 validSets.insert(S1);
             }
@@ -58,7 +77,7 @@ std::set<std::set<int>> SE0_cut::solve_separationProb(double** x_ij, CutComposer
     return validSets;
 }
 
-void SE0_cut::set_LHS_Expr(IloExpr& lhs_expr, IloNumVar** x_ij, const std::set<int>& S1) {
+void SE_cut::set_LHS_Expr(IloExpr& lhs_expr, IloNumVar** x_ij, const std::set<int>& S1) {
     for (int i: S1) {
         for (int j: S1) {
             lhs_expr += x_ij[i][j];
@@ -67,7 +86,7 @@ void SE0_cut::set_LHS_Expr(IloExpr& lhs_expr, IloNumVar** x_ij, const std::set<i
     lhs_expr -= ((int) S1.size() - 1);
 }
 
-IloRangeArray SE0_cut::get_cut_cnsts(double** x_ij, CutComposer* cc) {
+IloRangeArray SE_cut::get_cut_cnsts(double** x_ij, CutComposer* cc) {
     std::set<std::set<int>> validSets = solve_separationProb(x_ij, cc);
     //
     char buf[2048];
@@ -84,22 +103,23 @@ IloRangeArray SE0_cut::get_cut_cnsts(double** x_ij, CutComposer* cc) {
     return cnsts;
 }
 
-void SE0_cut::add_cnsts2Model(const std::set<std::set<int>>& validSets,  CutComposer* cc, const IloCplex::Callback::Context& context) {
+void SE_cut::add_cnsts2Model(const std::set<std::set<int>>& validSets,  CutComposer* cc, const IloCplex::Callback::Context& context) {
     for (std::set<int> S1: validSets) {
         generatedSets.insert(S1);
         IloExpr lhs_expr(cc->env);
         set_LHS_Expr(lhs_expr, cc->x_ij, S1);
-        context.addUserCut(lhs_expr <= 0, IloCplex::UseCutForce, IloFalse);
+        addUserCutwCust(context, lhs_expr);
         lhs_expr.end();
+        cc->numGenCuts += 1;
     }
 }
 
-void SE0_cut::add_cut(double** x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
+void SE_cut::add_cut(double** x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
     std::set<std::set<int>> validSets = solve_separationProb(x_ij, cc);
     add_cnsts2Model(validSets, cc, context);
 }
 
-std::string SE0_cut::add_cut_wLogging(double** x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
+std::string SE_cut::add_cut_wLogging(double** x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
     std::set<std::set<int>> validSets = solve_separationProb(x_ij, cc);
     add_cnsts2Model(validSets, cc, context);
     //
@@ -143,14 +163,7 @@ std::string SE0_cut::add_cut_wLogging(double** x_ij, CutComposer* cc, const IloC
  }
  
  
-SE0_cut::SE0_cut(std::string ch_name) : CutBase(ch_name) {
-    if (ch_name.substr(0, 1) == "o") {
-        find_candiSet = findOpt_candiSet;
-    } else {
-        assert(ch_name.substr(0, 1) == "h");
-        find_candiSet = findGA_candiSet;
-    }
-}
+
 
 class Individual {
 public:

@@ -10,7 +10,7 @@
 #include "../Cuts/Base.hpp"
 
 RC::RC(Problem* prob, std::string logPath, std::vector<std::string> cut_names) : BaseMM(prob, logPath, 'L', true) {
-    std::vector<CutBase*> cuts = get_cutInstances(cut_names);
+    std::vector<CutBase*> cuts = get_cutInstances(cut_names, IloCplex::UseCutForce, IloFalse);
     cc = new CutComposer(prob, cuts, env, x_ij, logPath);
     //
     cplex->setOut(env.getNullStream());

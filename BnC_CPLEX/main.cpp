@@ -15,6 +15,7 @@
 #include "Problem.hpp"
 #include "Etc.hpp"
 #include "MathematicalModel/BaseMM.hpp"
+#include "GH/IH.hpp"
 
 
 #define DEFAULT_BUFFER_SIZE 2048
@@ -81,41 +82,53 @@ void write_solution(Problem *prob, FilePathOrganizer &fpo, TimeTracker &tt, Base
     fout_csv.close();
 }
 
-void write_solution(Problem *prob, FilePathOrganizer &fpo, TimeTracker &tt,
-                    BaseMM *mm,
-                    double gap) {
+void write_solution(Problem* prob, FilePathOrganizer& fpo, TimeTracker& tt,
+                    double objV, double gap, long long int numNodes, int numGenCuts) {
     char row[DEFAULT_BUFFER_SIZE];
     std::fstream fout_csv;
     fout_csv.open(fpo.solPathCSV, std::ios::out);
-    fout_csv << "objV,Gap,eliCpuTime,eliWallTime" << "\n";
-    sprintf(row, "%f,%f,%f,%f",
-            mm->cplex->getObjValue(),
-            gap,
+    fout_csv << "objV,Gap,eliCpuTime,eliWallTime,numNodes,numGenCuts" << "\n";
+    sprintf(row, "%f,%f,%f,%f,%lld,%d",
+            objV, gap,
             tt.get_elipsedTimeCPU(),
-            tt.get_elipsedTimeWall());
+            tt.get_elipsedTimeWall(),
+            numNodes, numGenCuts);
     fout_csv << row << "\n";
     fout_csv.close();
-    //
-    double **x_ij = new double *[(*prob).N.size()];
-    double *u_i = new double[(*prob).N.size()];
-    for (int i: (*prob).N) {
-        x_ij[i] = new double[(*prob).N.size()];
-    }
-    mm->get_x_ij(x_ij);
-    mm->get_u_i(u_i);
+}
+
+void write_visitingSeq_arrivalTime(Problem* prob, FilePathOrganizer& fpo,
+                                   double** x_ij, double* u_i) {
+    std::fstream fout_txt;
+    fout_txt.open(fpo.solPathTXT, std::ios::out);
     std::map<int, int> _route;
     for (int i: (*prob).N) {
         for (int j: (*prob).N) {
             if (x_ij[i][j] > 0.5) {
                 _route[i] = j;
+//                std::cout << "(" << i << "," << j << ")" << std::endl;
             }
         }
     }
-    
-    std::fstream fout_txt;
-    fout_txt.open(fpo.solPathTXT, std::ios::out);
-    
-    
+    std::vector<int> seq;
+    int i = (*prob).o;
+    fout_txt << "Visiting sequence" << "\n";
+
+    while (true) {
+        fout_txt << i << "-";
+        seq.push_back(i);
+        i = _route[i];
+        if (i == (*prob).d) {
+            fout_txt << i << "\n\n";
+            break;
+        }
+    }
+    seq.push_back(i);
+    fout_txt << "Arrival time" << "\n";
+    for (int i: seq) {
+        fout_txt << i << ": " << u_i[i] << "\n";
+    }
+    fout_txt.close();
 //    fout_txt <<"\n";
 //
 //    for (int k: (*prob).K) {
@@ -138,37 +151,7 @@ void write_solution(Problem *prob, FilePathOrganizer &fpo, TimeTracker &tt,
 //        }
 //    }
 //    fout_txt <<"\n";
-    
-    std::vector<int> seq;
-    int i = (*prob).o;
-    fout_txt << "Visiting sequence" << "\n";
-
-    while (true) {
-        fout_txt << i << "-";
-        seq.push_back(i);
-        i = _route[i];
-        if (i == (*prob).d) {
-            fout_txt << i << "\n\n";
-            break;
-        }
-    }
-    seq.push_back(i);
-
-
-    fout_txt << "Arrival time" << "\n";
-    for (int i: seq) {
-        fout_txt << i << ": " << u_i[i] << "\n";
-    }
-    fout_txt.close();
-    //
-
-    for (int i: (*prob).N) {
-        delete [] x_ij[i];
-    }
-    delete [] x_ij;
-    delete [] u_i;
 }
-
 
 int main(int argc, const char * argv[]) {
     std::vector<std::string> arguments;
@@ -177,7 +160,7 @@ int main(int argc, const char * argv[]) {
     }
     std::string basicFlags[] = {"-i", "-a"};
     int numBasicFlags = sizeof(basicFlags) / sizeof(std::string);
-    for (int i = 0; i < numBasicFlags ; i++) {
+    for (int i = 0; i < numBasicFlags; i++) {
         std::string option = basicFlags[i];
         if (!hasOption(arguments, option)) {
             std::string msg("Please provide the basic arguments;");
@@ -186,12 +169,15 @@ int main(int argc, const char * argv[]) {
             return 1;
         }
     }
-    
+    bool enforcementMode = false;
+    if (hasOption(arguments, "-ef")) {
+        enforcementMode = true;
+    }
     std::string prob_dpath(valueOf(arguments, "-i"));
     std::string appr_name(valueOf(arguments, "-a"));
     std::string appr_dpath = prob_dpath.substr(0, prob_dpath.find_last_of("/"));
     appr_dpath += "/" + appr_name;
-    system(("mkdir -p "+ appr_dpath).c_str());
+    system(("mkdir -p " + appr_dpath).c_str());
     //
     std::string appr_name_base = appr_name.substr(0, appr_name.find_first_of("-"));
     std::vector<std::string> probFileNames = read_directory(prob_dpath, ".json");
@@ -200,11 +186,22 @@ int main(int argc, const char * argv[]) {
         Problem *prob = Problem::read_json(prob_fpath);
         std::string postfix = prob->problemName;
         FilePathOrganizer fpo(appr_dpath, postfix);
-        std::ifstream is;
-        is.open(fpo.solPathCSV);
-        if (!is.fail()) {
-            is.close();
-            continue;
+        if (!enforcementMode) {
+            std::ifstream is;
+            std::string handledFiles[] = {fpo.solPathCSV, fpo.lpPath};
+            int numAssoFiles = sizeof(handledFiles) / sizeof(std::string);
+            bool isHandled = false;
+            for (int i = 0; i < numAssoFiles ; i++) {
+                is.open(handledFiles[i]);
+                if (!is.fail()) {
+                    is.close();
+                    isHandled = true;
+                    break;
+                }
+            }
+            if (isHandled) {
+                continue;
+            }
         }
         if (!hasOption(arguments, "-l")) {
             fpo.logPath = "";
@@ -212,51 +209,118 @@ int main(int argc, const char * argv[]) {
         TimeTracker tt;
         std::cout << tt.get_curTime();
         std::cout << "\t" << appr_name << "; " << postfix << std::endl;
-        double gap;
-        if (appr_name_base == "LP" || appr_name_base == "ILP") {
-            bool isTightenModel;
-            std::size_t pos = appr_name.find("-");
-            if (pos == std::string::npos || appr_name.substr(pos + 1) == "N") {
-                isTightenModel = false;
-            } else {
-                assert(appr_name.substr(pos + 1) == "T");
-                isTightenModel = true;
-            }
-            if (appr_name_base == "LP") {
-                LP lp(prob, fpo.logPath, isTightenModel);
-                lp.cplex->solve();
-                write_solution(prob, fpo, tt, &lp);
-            } else {
-                ILP ilp(prob, fpo.logPath, isTightenModel);
-                ilp.cplex->solve();
-                if (ilp.cplex->getStatus() == IloAlgorithm::Infeasible) {
-                    ilp.cplex->exportModel(fpo.lpPath.c_str());
-                    continue;
-                }
-                gap = ilp.cplex->getMIPRelativeGap();
-                write_solution(prob, fpo, tt, &ilp, gap);
-            }
+        if (appr_name_base == "GH") {
+            InsertionHeuristic gh(prob, fpo.logPath);
+            gh.run();
+            double objV = gh.get_objV();
+            double gap = -1.0;
+            long long int numNodes = 1;
+            int numGenCuts = -1;
+            write_solution(prob, fpo, tt, objV, gap, numNodes, numGenCuts);
+            write_visitingSeq_arrivalTime(prob, fpo, gh.x_ij, gh.u_i);
         } else {
-            std::vector<std::string> tokens = parseWithDelimiter(appr_name, "-");
-            std::vector<std::string> cut_names;
-            for (int i = 1; i < tokens.size(); i++) {
-                cut_names.push_back(tokens[i]);
+            BaseMM* mm;
+            if (appr_name_base == "LP" || appr_name_base == "ILP") {
+                bool isTightenModel;
+                std::size_t pos = appr_name.find("-");
+                if (pos == std::string::npos || appr_name.substr(pos + 1) == "N") {
+                    isTightenModel = false;
+                } else {
+                    assert(appr_name.substr(pos + 1) == "T");
+                    isTightenModel = true;
+                }
+                if (appr_name_base == "LP") {
+                    mm = new LP(prob, fpo.logPath, isTightenModel);
+                } else {
+                    mm = new ILP(prob, fpo.logPath, isTightenModel);
+                }
+            } else {
+                std::vector<std::string> tokens = parseWithDelimiter(appr_name, "-");
+                std::vector<std::string> cut_names;
+                for (int i = 1; i < tokens.size(); i++) {
+                    cut_names.push_back(tokens[i]);
+                }
+                IloCplex::CutManagement cutManagerType = IloCplex::UseCutForce;
+                IloBool isLocalCutAdd = IloFalse;
+                if (hasOption(arguments, "-c")) {
+                    std::string cutPrmts = valueOf(arguments, "-c");
+                    if (cutPrmts.substr(1, 2) == "l") {
+                        isLocalCutAdd = IloTrue;
+                    } else {
+                        assert(cutPrmts.substr(1, 2) == "g");
+                    }
+                    if (cutPrmts.substr(0, 1) == "i") {
+                        cutManagerType = IloCplex::UseCutFilter;
+                    } else if(cutPrmts.substr(0, 1) == "u") {
+                        cutManagerType = IloCplex::UseCutPurge;
+                    } else {
+                        assert(cutPrmts.substr(0, 1) == "o");
+                    }
+                }
+                if (tokens[0] == "BnC") {
+                    mm = new BnC(prob, fpo.logPath, cut_names, cutManagerType, isLocalCutAdd);
+                } else {
+                    assert(tokens[0] == "RC");
+                    mm = new RC(prob, fpo.logPath, cut_names);
+                }
             }
-            if (tokens[0] == "BnC") {
-                BnC bnc(prob, fpo.logPath, cut_names);
-                bnc.cplex->solve();
-                if (bnc.cplex->getStatus() == IloAlgorithm::Infeasible) {
-                    bnc.cplex->exportModel(fpo.lpPath.c_str());
+            if (hasOption(arguments, "-t")) {
+                int timeLimitSec = std::stoi(valueOf(arguments, "-t"));
+                mm->cplex->setParam(IloCplex::TiLim, timeLimitSec);
+            }
+            if (hasOption(arguments, "-g")) {
+                InsertionHeuristic gh(prob, fpo.logPath);
+                gh.run();
+                if (gh.get_objV() == 0) {
+                    double objV = gh.get_objV();
+                    double gap = -1.0;
+                    long long int numNodes = -1;
+                    int numGenCuts = -1;
+                    write_solution(prob, fpo, tt, objV, gap, numNodes, numGenCuts);
+                    write_visitingSeq_arrivalTime(prob, fpo, gh.x_ij, gh.u_i);
                     continue;
                 }
-                gap = bnc.cplex->getMIPRelativeGap();
-                write_solution(prob, fpo, tt, &bnc, gap);
-            } else {
-                assert(tokens[0] == "RC");
-                RC rc(prob, fpo.logPath, cut_names);
-                rc.solve();
+                mm->start_fromGHSol(gh.x_ij, gh.u_i);
             }
+            mm->cplex->solve();
+            if (mm->cplex->getStatus() == IloAlgorithm::Infeasible) {
+                mm->cplex->exportModel(fpo.lpPath.c_str());
+                continue;
+            }
+            if (appr_name_base == "LP" || appr_name_base == "RC") {
+                write_solution(prob, fpo, tt, mm);
+            } else {
+                try {
+                    double objV = mm->cplex->getObjValue();
+                    double gap = mm->cplex->getMIPRelativeGap();
+                    long long int numNodes = mm->cplex->getNnodes64();
+                    int numGenCuts = mm->getNumGenCuts();
+                    write_solution(prob, fpo, tt, objV, gap, numNodes, numGenCuts);
+                    //
+                    double **x_ij = new double *[(*prob).N.size()];
+                    double *u_i = new double[(*prob).N.size()];
+                    for (int i: (*prob).N) {
+                        x_ij[i] = new double[(*prob).N.size()];
+                    }
+                    mm->get_x_ij(x_ij);
+                    mm->get_u_i(u_i);
+                    write_visitingSeq_arrivalTime(prob, fpo, x_ij, u_i);
+                    for (int i: (*prob).N) {
+                        delete [] x_ij[i];
+                    }
+                    delete [] x_ij;
+                    delete [] u_i;
+                } catch (IloCplex::Exception e) {
+                    std::cout << "no incumbent until the time limit" << std::endl;
+                    std::fstream fout;
+                    fout.open(fpo.lpPath, std::ios::out);
+                    fout << "\t No incumbent until the time limit, " << std::stoi(valueOf(arguments, "-t")) << "seconds" << "\n";
+                    fout.close();
+                }
+            }
+            delete mm;
         }
+//        delete prob;
     }
     return 0;
 }

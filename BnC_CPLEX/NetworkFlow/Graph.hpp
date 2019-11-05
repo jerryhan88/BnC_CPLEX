@@ -13,6 +13,7 @@
 #include <cstring>
 
 double** gen_graphInstance(double **graph, int numNodes);
+bool** gen_adjM(double **graph, int numNodes);
 //
 bool reachability_bfs(double **rGraph, int V, int s, int t, int parent[]);
 void reachability_dfs(double **graph, int V, int s, bool visited[]);

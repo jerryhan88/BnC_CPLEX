@@ -34,11 +34,15 @@ public:
     //
     BaseMM(Problem *prob, std::string logPath, char xType, bool isTightenModel);
     ~BaseMM();
-    void get_x_ij(double **_x_ij);
-    void get_u_i(double *_u_i);
+    void get_x_ij(double** _x_ij);
+    void get_u_i(double* _u_i);
+    void start_fromGHSol(double** _x_ij, double* _u_i);
+    virtual int getNumGenCuts() {
+           throw "Should override getNumGenCuts()";
+       }
 protected:
     void build_baseModel();
-    std::vector<CutBase*> get_cutInstances(std::vector<std::string> cut_names);
+    std::vector<CutBase*> get_cutInstances(std::vector<std::string> cut_names, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd);
 private:
     void def_dvs(char xType);
     void def_FC_cnsts();
@@ -53,16 +57,20 @@ private:
 class ILP : public BaseMM {
 public:
     ILP(Problem *prob, std::string logPath, bool isTightenModel);
+    int getNumGenCuts() {
+        return -1;
+    }
 };
 
 class BnC : public BaseMM {
 public:
     CutComposer *cc;
     //
-    BnC(Problem *prob, std::string logPath, std::vector<std::string> cut_names);
+    BnC(Problem *prob, std::string logPath, std::vector<std::string> cut_names, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd);
     ~BnC() {
         delete cc;
     }
+    int getNumGenCuts();
 };
 
 class LP : public BaseMM {
@@ -70,6 +78,9 @@ public:
     std::ofstream* logStream;
     LP(Problem *prob, std::string logPath, bool isTightenModel);
     ~LP();
+    int getNumGenCuts() {
+        return -1;
+    }
 };
 
 class RC : public BaseMM {
@@ -82,6 +93,9 @@ public:
         delete cc;
     }
     void solve();
+    int getNumGenCuts() {
+        return -1;
+    }
 };
 
 #endif /* BaseMM_hpp */

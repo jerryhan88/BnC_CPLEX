@@ -20,6 +20,22 @@ double** gen_graphInstance(double **graph, int numNodes) {
     return G;
 }
 
+bool** gen_adjM(double **graph, int numNodes) {
+    bool** adjM;
+    adjM = new bool*[numNodes];
+    for (int i = 0; i < numNodes; i++) {
+        adjM[i] = new bool[numNodes];
+        for (int j = 0; j < numNodes; j++) {
+            if (graph[i][j] > 0.0) {
+                adjM[i][j] = true;
+            } else {
+                adjM[i][j] = false;
+            }
+        }
+    }
+    return adjM;
+}
+
 bool reachability_bfs(double **rGraph, int V, int s, int t, int parent[]) {
     // Create a visited array and mark all vertices as not visited
     bool visited[V];

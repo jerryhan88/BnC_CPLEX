@@ -43,8 +43,8 @@ std::set<std::set<int>> solve_multipleMaxFlow(double** x_ij, Problem* prob) {
     //
     bool isFirst = true;
     for (int i: prob->S) {
-        if (i == prob->o || i == prob->d)
-            continue;
+//        if (i == prob->o || i == prob->d)
+//            continue;
         for (int j: prob->S) {
             if (i == j)
                 continue;

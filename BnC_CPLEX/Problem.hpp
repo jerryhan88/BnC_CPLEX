@@ -20,16 +20,18 @@
 class Problem {
 public:
     std::string problemName;
-    int bv, bw, bu;
+    double bv, bw, bu;
     //
-    std::vector<int> K, PD, N;
-    std::set<int> S, P, D;
+    std::vector<int> K, PD, N, _S;
+    std::vector<std::set<int>> LS;
+    std::set<int> P, D, S;
     int o, d;
     int *h_k, *n_k, **c_ij;
-    int *r_k, *v_k, *w_k;
-    int *al_i, *be_i;
-    int **t_ij;
-    int M;
+    double *r_k, *v_k, *w_k;
+    double *al_i, *be_i;
+    double **t_ij;
+    double M;
+    double *v_i, *w_i;
     //
     Problem () {};
     Problem(int numTasks,
@@ -59,18 +61,26 @@ public:
         }
         for (int i: prob_json["S"]) {
             prob->S.insert(i);
+            prob->_S.push_back(i);
+        }
+        for (int i = 0; i < prob->_S.size() - 1; i++) {
+            std::set<int> lS;
+            lS.insert(prob->_S.begin() + i + 2, prob->_S.end());
+            prob->LS.push_back(lS);
         }
         for (int i: prob_json["P"]) {
             prob->P.insert(i);
         }
+        std::vector<int> _D;
         for (int i: prob_json["D"]) {
             prob->D.insert(i);
+            _D.push_back(i);
         }
         prob->o = prob_json["o"];
         prob->d = prob_json["d"];
-        prob->r_k = new int[prob->K.size()];
-        prob->v_k = new int[prob->K.size()];
-        prob->w_k = new int[prob->K.size()];
+        prob->r_k = new double[prob->K.size()];
+        prob->v_k = new double[prob->K.size()];
+        prob->w_k = new double[prob->K.size()];
         prob->h_k = new int[prob->K.size()];
         prob->n_k = new int[prob->K.size()];
         for (int k: prob->K) {
@@ -81,14 +91,14 @@ public:
             prob->n_k[k] = prob_json["n_k"][k];
         }
         size_t numNodes = prob_json["t_ij"][0].size();
-        prob->t_ij = new int*[numNodes];
+        prob->t_ij = new double*[numNodes];
         prob->c_ij = new int*[numNodes];
         for (int i = 0; i < numNodes; i++) {
-            prob->t_ij[i] = new int[numNodes];
+            prob->t_ij[i] = new double[numNodes];
             prob->c_ij[i] = new int[numNodes];
         }
-        prob->al_i = new int[numNodes];
-        prob->be_i = new int[numNodes];
+        prob->al_i = new double[numNodes];
+        prob->be_i = new double[numNodes];
         for (int i: prob->N) {
             prob->al_i[i] = prob_json["al_i"][i];
             prob->be_i[i] = prob_json["be_i"][i];
@@ -102,7 +112,22 @@ public:
         prob->bv = prob_json["bv"];
         prob->bw = prob_json["bw"];
         prob->bu = prob_json["bu"];
-
+        //
+        prob->v_i = new double[numNodes];
+        prob->w_i = new double[numNodes];
+        for (int n0: prob->S) {
+            prob->v_i[n0] = 0.0;
+            prob->w_i[n0] = 0.0;
+        }
+        for (int n0: prob->P) {
+            prob->v_i[n0] = 0.0;
+            prob->w_i[n0] = 0.0;
+        }
+        
+        for (int k = 0; k < _D.size(); k++) {
+            prob->v_i[_D[k]] = prob->v_k[k];
+            prob->w_i[_D[k]] = prob->w_k[k];
+        }
         return prob;
     }
 };

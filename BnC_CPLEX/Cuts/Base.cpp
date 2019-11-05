@@ -10,6 +10,10 @@
 
 std::mutex mtx;
 
+void CutBase::addUserCutwCust(const IloCplex::Callback::Context &context, IloExpr lhs_expr) {
+    context.addUserCut(lhs_expr <= 0, cutManagerType, isLocalCutAdd);
+}
+
 CutComposer::CutComposer(Problem *prob, std::vector<CutBase*> &cuts, IloEnv &env, IloNumVar **x_ij, std::string logPath) {
     this->prob = prob;
     for (CutBase *c: cuts) {
