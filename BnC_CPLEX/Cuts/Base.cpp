@@ -7,6 +7,8 @@
 //
 
 #include "Base.hpp"
+#include <random>
+
 
 std::mutex mtx;
 
@@ -14,7 +16,7 @@ void CutBase::addUserCutwCust(const IloCplex::Callback::Context &context, IloExp
     context.addUserCut(lhs_expr <= 0, cutManagerType, isLocalCutAdd);
 }
 
-CutComposer::CutComposer(Problem *prob, std::vector<CutBase*> &cuts, IloEnv &env, IloNumVar **x_ij, std::string logPath) {
+CutComposer::CutComposer(Problem *prob, std::vector<CutBase*> &cuts, IloEnv &env, IloNumVar **x_ij, std::string logPath, TimeTracker* tt) {
     this->prob = prob;
     for (CutBase *c: cuts) {
         this->cuts.push_back(c);
@@ -22,6 +24,12 @@ CutComposer::CutComposer(Problem *prob, std::vector<CutBase*> &cuts, IloEnv &env
     this->env = env;
     this->x_ij = x_ij;
     this->logPath = logPath;
+    this->tt = tt;
+    //
+    _x_ij = new double*[(*prob).N.size()];
+    for (int i: (*prob).N) {
+        _x_ij[i] = new double[(*prob).N.size()];
+    }
 }
 
 double** CutComposer::get_x_ij(const IloCplex::Callback::Context &context) {
@@ -35,15 +43,25 @@ double** CutComposer::get_x_ij(const IloCplex::Callback::Context &context) {
     return _x_ij;
 }
 
+void CutComposer::set_x_ij(const IloCplex::Callback::Context &context) {
+    for (int i: (*prob).N) {
+        for (int j: (*prob).N) {
+            _x_ij[i][j] = context.getRelaxationPoint(x_ij[i][j]);
+        }
+    }
+}
+
 void CutComposer::invoke (const IloCplex::Callback::Context &context) {
     if ( context.inRelaxation() ) {
         mtx.lock();
-        double **_x_ij = get_x_ij(context);
+//        double **_x_ij = get_x_ij(context);
+        set_x_ij(context);
         if (logPath == "") {
             for (CutBase *c: cuts) {
                 c->add_cut(_x_ij, this, context);
             }
         } else {
+            double timeRecored = tt->get_elipsedTimeCPU();
             std::vector<std::string> violatedCnsts;
             for (CutBase *c: cuts) {
                 std::string cnsts = c->add_cut_wLogging(_x_ij, this, context);
@@ -67,11 +85,13 @@ void CutComposer::invoke (const IloCplex::Callback::Context &context) {
             char log[_log.size() + 1];
             std::strcpy(log, _log.c_str());
             appendRow(logPath, log);
+            time4Sep += tt->get_elipsedTimeCPU() - timeRecored;
+            num4Sep += 1;
         }
+//        for (int i: (*prob).N) {
+//            delete [] _x_ij[i];
+//        }
+//        delete [] _x_ij;
         mtx.unlock();
-        for (int i: (*prob).N) {
-            delete [] _x_ij[i];
-        }
-        delete [] _x_ij;
     }
 }

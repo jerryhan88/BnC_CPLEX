@@ -39,7 +39,13 @@ public:
     void start_fromGHSol(double** _x_ij, double* _u_i);
     virtual int getNumGenCuts() {
            throw "Should override getNumGenCuts()";
-       }
+    }
+    virtual double getTime4Sep() {
+        throw "Should override getTime4Sep()";
+    }
+    virtual int getNum4Sep() {
+        throw "Should override getNum4Sep()";
+    }
 protected:
     void build_baseModel();
     std::vector<CutBase*> get_cutInstances(std::vector<std::string> cut_names, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd);
@@ -60,17 +66,25 @@ public:
     int getNumGenCuts() {
         return -1;
     }
+    double getTime4Sep() {
+        return -1.0;
+    }
+    int getNum4Sep() {
+        return -1;
+    }
 };
 
 class BnC : public BaseMM {
 public:
     CutComposer *cc;
     //
-    BnC(Problem *prob, std::string logPath, std::vector<std::string> cut_names, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd);
+    BnC(Problem *prob, std::string logPath, std::vector<std::string> cut_names, bool isTightenModel, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd, TimeTracker* tt);
     ~BnC() {
         delete cc;
     }
     int getNumGenCuts();
+    double getTime4Sep();
+    int getNum4Sep();
 };
 
 class LP : public BaseMM {
@@ -79,6 +93,12 @@ public:
     LP(Problem *prob, std::string logPath, bool isTightenModel);
     ~LP();
     int getNumGenCuts() {
+        return -1;
+    }
+    double getTime4Sep() {
+        return -1.0;
+    }
+    int getNum4Sep() {
         return -1;
     }
 };
@@ -94,6 +114,12 @@ public:
     }
     void solve();
     int getNumGenCuts() {
+        return -1;
+    }
+    double getTime4Sep() {
+        return -1.0;
+    }
+    int getNum4Sep() {
         return -1;
     }
 };

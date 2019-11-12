@@ -20,6 +20,11 @@
 
 #define DEFAULT_BUFFER_SIZE 2048
 
+template<typename Base, typename T>
+inline bool instanceof(const T*) {
+   return std::is_base_of<Base, T>::value;
+}
+
 bool hasOption(std::vector<std::string> &arguments, std::string option) {
     bool hasValue = false;
     for (std::string str: arguments) {
@@ -73,26 +78,43 @@ void write_solution(Problem *prob, FilePathOrganizer &fpo, TimeTracker &tt, Base
     char row[DEFAULT_BUFFER_SIZE];
     std::fstream fout_csv;
     fout_csv.open(fpo.solPathCSV, std::ios::out);
-    fout_csv << "objV,eliCpuTime,eliWallTime" << "\n";
-    sprintf(row, "%f,%f,%f",
-            mm->cplex->getObjValue(),
-            tt.get_elipsedTimeCPU(),
-            tt.get_elipsedTimeWall());
+    fout_csv << "objV,Gap,eliCpuTime,eliWallTime,notes" << "\n";
+    if (instanceof<LP>(mm)) {
+        fout_csv << "objV,eliCpuTime,eliWallTime" << "\n";
+        sprintf(row, "%f,%f,%f,\"{numRows: %ld,numCols: %ld}\"",
+                mm->cplex->getObjValue(),
+                tt.get_elipsedTimeCPU(),
+                tt.get_elipsedTimeWall(),
+                mm->cplex->getNrows(),
+                mm->cplex->getNcols());
+    } else {
+        sprintf(row,
+                "%f,%f,%f,%f,\"{\'numNodes\': %lld, \'numGenCuts\': %d, \'time4Sep\': %f, \'num4Sep\': %d}\"",
+                mm->cplex->getObjValue(),
+                mm->cplex->getMIPRelativeGap(),
+                tt.get_elipsedTimeCPU(),
+                tt.get_elipsedTimeWall(),
+                mm->cplex->getNnodes64(),
+                mm->getNumGenCuts(),
+                mm->getTime4Sep(),
+                mm->getNum4Sep());
+    }
     fout_csv << row << "\n";
     fout_csv.close();
 }
 
 void write_solution(Problem* prob, FilePathOrganizer& fpo, TimeTracker& tt,
-                    double objV, double gap, long long int numNodes, int numGenCuts) {
+                    double objV, double gap, long long int numNodes, int numGenCuts, double time4Sep) {
     char row[DEFAULT_BUFFER_SIZE];
     std::fstream fout_csv;
     fout_csv.open(fpo.solPathCSV, std::ios::out);
-    fout_csv << "objV,Gap,eliCpuTime,eliWallTime,numNodes,numGenCuts" << "\n";
-    sprintf(row, "%f,%f,%f,%f,%lld,%d",
+    fout_csv << "objV,Gap,eliCpuTime,eliWallTime,notes" << "\n";
+    sprintf(row,
+            "%f,%f,%f,%f,\"{numNodes: %lld, numGenCuts: %d, time4Sep: %f}\"",
             objV, gap,
             tt.get_elipsedTimeCPU(),
             tt.get_elipsedTimeWall(),
-            numNodes, numGenCuts);
+            numNodes, numGenCuts, time4Sep);
     fout_csv << row << "\n";
     fout_csv.close();
 }
@@ -216,7 +238,8 @@ int main(int argc, const char * argv[]) {
             double gap = -1.0;
             long long int numNodes = 1;
             int numGenCuts = -1;
-            write_solution(prob, fpo, tt, objV, gap, numNodes, numGenCuts);
+            double time4Sep = -1.0;
+            write_solution(prob, fpo, tt, objV, gap, numNodes, numGenCuts, time4Sep);
             write_visitingSeq_arrivalTime(prob, fpo, gh.x_ij, gh.u_i);
         } else {
             BaseMM* mm;
@@ -257,8 +280,12 @@ int main(int argc, const char * argv[]) {
                         assert(cutPrmts.substr(0, 1) == "o");
                     }
                 }
+                bool isTightenModel = false;
+                if (hasOption(arguments, "-ed")) {
+                    isTightenModel = true;
+                }
                 if (tokens[0] == "BnC") {
-                    mm = new BnC(prob, fpo.logPath, cut_names, cutManagerType, isLocalCutAdd);
+                    mm = new BnC(prob, fpo.logPath, cut_names, isTightenModel, cutManagerType, isLocalCutAdd, &tt);
                 } else {
                     assert(tokens[0] == "RC");
                     mm = new RC(prob, fpo.logPath, cut_names);
@@ -276,7 +303,8 @@ int main(int argc, const char * argv[]) {
                     double gap = -1.0;
                     long long int numNodes = -1;
                     int numGenCuts = -1;
-                    write_solution(prob, fpo, tt, objV, gap, numNodes, numGenCuts);
+                    double time4Sep = -1.0;
+                    write_solution(prob, fpo, tt, objV, gap, numNodes, numGenCuts, time4Sep);
                     write_visitingSeq_arrivalTime(prob, fpo, gh.x_ij, gh.u_i);
                     continue;
                 }
@@ -291,11 +319,7 @@ int main(int argc, const char * argv[]) {
                 write_solution(prob, fpo, tt, mm);
             } else {
                 try {
-                    double objV = mm->cplex->getObjValue();
-                    double gap = mm->cplex->getMIPRelativeGap();
-                    long long int numNodes = mm->cplex->getNnodes64();
-                    int numGenCuts = mm->getNumGenCuts();
-                    write_solution(prob, fpo, tt, objV, gap, numNodes, numGenCuts);
+                    write_solution(prob, fpo, tt, mm);
                     //
                     double **x_ij = new double *[(*prob).N.size()];
                     double *u_i = new double[(*prob).N.size()];

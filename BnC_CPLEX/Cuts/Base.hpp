@@ -59,10 +59,14 @@ public:
     std::vector<CutBase*> cuts;
     IloEnv env;
     IloNumVar** x_ij;
+    double** _x_ij;
     std::string logPath;
+    TimeTracker* tt;
     int numGenCuts = 0;
+    double time4Sep = 0.0;
+    int num4Sep = 0;
     //
-    CutComposer(Problem* prob, std::vector<CutBase*>& cuts, IloEnv& env, IloNumVar** x_ij, std::string logPath);
+    CutComposer(Problem* prob, std::vector<CutBase*>& cuts, IloEnv& env, IloNumVar** x_ij, std::string logPath, TimeTracker* tt);
     ~CutComposer() {
         for (CutBase* cut: cuts) {
             delete cut;
@@ -74,6 +78,7 @@ public:
     //
 private:
     double** get_x_ij(const IloCplex::Callback::Context &context);
+    void set_x_ij(const IloCplex::Callback::Context &context);
     void add_cuts();
 };
 
@@ -98,11 +103,11 @@ private:
     void add_cnsts2Model(const std::set<std::set<int>>& validSets, CutComposer* cc, const IloCplex::Callback::Context& context);
 };
 
-class Capacity_cut : public CutBase {
+class CA_cut : public CutBase {
 public:
     std::set<std::set<int>> generatedSets;
     std::function<std::set<std::set<int>>(double** x_ij, Problem* prob)> separationAlgo;
-    Capacity_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd);
+    CA_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd);
     //
     IloRangeArray get_cut_cnsts(double** x_ij, CutComposer* cc);
     void add_cut(double** x_ij, CutComposer* cc, const IloCplex::Callback::Context& context);

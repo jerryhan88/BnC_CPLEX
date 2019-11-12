@@ -84,13 +84,13 @@ std::vector<CutBase*> BaseMM::get_cutInstances(std::vector<std::string> cut_name
     std::vector<CutBase*> cuts;
     for (std::string cut_name: cut_names) {
         std::string cutType = cut_name.substr(1);
-        if (cutType == "SE0") {
+        if (cutType == "SE") {
             cuts.push_back(new SE_cut(cut_name, cutManagerType, isLocalCutAdd));
         } else if (cutType == "CO") {
             assert(false);
 //            cuts.push_back(new Cover_cut(cut_name, turnOnCutManager, isLocalCutAdd));
         } else if (cutType == "CA") {
-            cuts.push_back(new Capacity_cut(cut_name, cutManagerType, isLocalCutAdd));
+            cuts.push_back(new CA_cut(cut_name, cutManagerType, isLocalCutAdd));
         } else if (cutType == "RS") {
             cuts.push_back(new RS_cut(cut_name, cutManagerType, isLocalCutAdd));
         } else if (cutType == "IP") {
@@ -313,11 +313,10 @@ void BaseMM::def_Ti_cnsts() {
     //
     for (int i: (*prob).P) {
         linExpr.clear();
-        sprintf(buf, "Ti(%d)", i);
+        sprintf(buf, "ED(%d)", i);
         for (int j: (*prob).N) {
             linExpr += x_ij[i][j];
         }
-        std::vector<int> K_i;
         for (int k: (*prob).K) {
             if ((*prob).h_k[k] == i) {
                 for (int j: (*prob).N) {

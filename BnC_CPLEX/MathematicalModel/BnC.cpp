@@ -10,9 +10,9 @@
 #include "../Cuts/Base.hpp"
 
 
-BnC::BnC(Problem* prob, std::string logPath, std::vector<std::string> cut_names, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd) : BaseMM(prob, logPath, 'I', true) {
+BnC::BnC(Problem* prob, std::string logPath, std::vector<std::string> cut_names, bool isTightenModel, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd, TimeTracker* tt) : BaseMM(prob, logPath, 'I', isTightenModel) {
     std::vector<CutBase*> cuts = get_cutInstances(cut_names, cutManagerType, isLocalCutAdd);
-    cc = new CutComposer(prob, cuts, env, x_ij, logPath);
+    cc = new CutComposer(prob, cuts, env, x_ij, logPath, tt);
     CPXLONG contextMask = 0;
     contextMask |= IloCplex::Callback::Context::Id::Relaxation;
     cplex->use(cc, contextMask);
@@ -32,4 +32,12 @@ BnC::BnC(Problem* prob, std::string logPath, std::vector<std::string> cut_names,
 
 int BnC::getNumGenCuts() {
     return cc->numGenCuts;
+}
+
+double BnC::getTime4Sep() {
+    return cc->time4Sep;
+}
+
+int BnC::getNum4Sep() {
+    return cc->num4Sep;
 }

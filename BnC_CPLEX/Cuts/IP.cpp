@@ -30,16 +30,16 @@ std::set<std::set<edge>> solve_allNodes(double** x_ij, Problem *prob) {
                 max_ON = j;
                 max_OEV = x_ij[i][j];
             }
-//            std::cout << "x[" << i << "][" << j << "]:" << x_ij[i][j] << std::endl;
         }
         adjM_maxON.push_back(max_ON);
     }
     //
-    bool visited[numNodes], isCycle;
+    bool visited[numNodes], isCycle, lowLHS;
     bool is_TW_violated, is_DT_violated, is_RS_violated;
-    double erest_deptTime, erest_arrvTime, tt;
+    double erest_deptTime, erest_arrvTime, tt, LHS;
     for (int i = 0; i < (*prob)._S.size() - 1; i++) {
         isCycle = false;
+        lowLHS = false;
         std::memset(visited, false, sizeof(visited));
         is_TW_violated = false;
         is_DT_violated = false;
@@ -50,6 +50,7 @@ std::set<std::set<edge>> solve_allNodes(double** x_ij, Problem *prob) {
         const int n2 = (*prob)._S[i + 1];
         erest_deptTime = al_i[n0];
         tt = 0.0;
+        LHS = 1.0;
         while (n0 != n2) {
             visited[n0] = true;
             n1 = adjM_maxON[n0];
@@ -61,6 +62,11 @@ std::set<std::set<edge>> solve_allNodes(double** x_ij, Problem *prob) {
                 break;
             }
             path.push_back(edge {n0, n1});
+            LHS += (x_ij[n0][n1] - 1);
+            if (LHS <= 0) {
+                lowLHS = true;
+                break;
+            }
             if (n1 == (*prob).d && n2 != (*prob).d) {
                 break;
             }
@@ -81,7 +87,7 @@ std::set<std::set<edge>> solve_allNodes(double** x_ij, Problem *prob) {
             erest_deptTime = erest_arrvTime > al_i[n1] ? erest_arrvTime : al_i[n1];
             n0 = n1;
         }
-        if (!isCycle) {
+        if (!isCycle && !lowLHS) {
             if (is_TW_violated || is_DT_violated || is_RS_violated) {
                 std::set<edge> S1(path.begin(), path.end());
                 outputSets.insert(S1);
@@ -89,51 +95,51 @@ std::set<std::set<edge>> solve_allNodes(double** x_ij, Problem *prob) {
         }
     }
     //
-    for (int k: (*prob).K) {
-        isCycle = false;
-        std::memset(visited, false, sizeof(visited));
-        is_TW_violated = false;
-        is_DT_violated = false;
-        
-        std::vector<edge> path;
-        int n0 = (*prob).h_k[k], n1;
-        const int n2 = (*prob).n_k[k];
-        erest_deptTime = al_i[n0];
-        tt = 0.0;
-        while (n0 != n2) {
-            visited[n0] = true;
-            n1 = adjM_maxON[n0];
-            if (n1 == -1) {
-                break;
-            }
-            if (visited[n1]) {
-                isCycle = true;
-                break;
-            }
-            path.push_back(edge {n0, n1});
-            if (n1 == (*prob).d) {
-                break;
-            }
-            tt += t_ij[n0][n1];
-            erest_arrvTime = erest_deptTime + t_ij[n0][n1];
-            if (be_i[n1] < erest_arrvTime) {
-                is_TW_violated = true;
-                break;
-            }
-            if ((*prob).bu < tt) {
-                is_DT_violated = true;
-                break;
-            }
-            erest_deptTime = erest_arrvTime > al_i[n1] ? erest_arrvTime : al_i[n1];
-            n0 = n1;
-        }
-        if (!isCycle) {
-            if (is_TW_violated || is_DT_violated) {
-                std::set<edge> S1(path.begin(), path.end());
-                outputSets.insert(S1);
-            }
-        }
-    }
+//    for (int k: (*prob).K) {
+//        isCycle = false;
+//        std::memset(visited, false, sizeof(visited));
+//        is_TW_violated = false;
+//        is_DT_violated = false;
+//
+//        std::vector<edge> path;
+//        int n0 = (*prob).h_k[k], n1;
+//        const int n2 = (*prob).n_k[k];
+//        erest_deptTime = al_i[n0];
+//        tt = 0.0;
+//        while (n0 != n2) {
+//            visited[n0] = true;
+//            n1 = adjM_maxON[n0];
+//            if (n1 == -1) {
+//                break;
+//            }
+//            if (visited[n1]) {
+//                isCycle = true;
+//                break;
+//            }
+//            path.push_back(edge {n0, n1});
+//            if (n1 == (*prob).d) {
+//                break;
+//            }
+//            tt += t_ij[n0][n1];
+//            erest_arrvTime = erest_deptTime + t_ij[n0][n1];
+//            if (be_i[n1] < erest_arrvTime) {
+//                is_TW_violated = true;
+//                break;
+//            }
+//            if ((*prob).bu < tt) {
+//                is_DT_violated = true;
+//                break;
+//            }
+//            erest_deptTime = erest_arrvTime > al_i[n1] ? erest_arrvTime : al_i[n1];
+//            n0 = n1;
+//        }
+//        if (!isCycle) {
+//            if (is_TW_violated || is_DT_violated) {
+//                std::set<edge> S1(path.begin(), path.end());
+//                outputSets.insert(S1);
+//            }
+//        }
+//    }
     //
     return outputSets;
 }
@@ -143,7 +149,7 @@ IP_cut::IP_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloB
 }
 
 bool IP_cut::valid_subset(const std::set<edge>& S1) {
-    if (generatedSets.find(S1) != generatedSets.end() ) {
+    if ( generatedSets.find(S1) != generatedSets.end() ) {
         return false;
     } else {
         return true;
@@ -157,14 +163,21 @@ std::set< std::set<edge> > IP_cut::solve_separationProb(double** x_ij, CutCompos
     //
     for (std::set<edge> S1: outputSets) {
         if (valid_subset(S1)) {
+            validSets.insert(S1);
             double lhs = 0.0;
             for (edge e: S1) {
                 lhs += x_ij[e.first][e.second];
             }
             lhs -= ((int) S1.size() - 1);
-            if (lhs > 0) {
-                validSets.insert(S1);
-            }
+//            std::cout << lhs << std::endl;
+//            double lhs = 0.0;
+//            for (edge e: S1) {
+//                lhs += x_ij[e.first][e.second];
+//            }
+//            lhs -= ((int) S1.size() - 1);
+//            if (lhs > 0) {
+//                validSets.insert(S1);
+//            }
         }
     }
     return validSets;

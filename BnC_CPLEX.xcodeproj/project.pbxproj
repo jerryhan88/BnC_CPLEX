@@ -18,13 +18,13 @@
 		8F3E9490236A8A7C00077CE6 /* Sequencer.c in Sources */ = {isa = PBXBuildFile; fileRef = 8F3E948F236A8A7B00077CE6 /* Sequencer.c */; };
 		8F3EE70E2355AEFD004BB9BB /* IP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F3EE70D2355AEFD004BB9BB /* IP.cpp */; };
 		8F6CCDE423715C7A00F9CFB1 /* SE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F6CCDE323715C7A00F9CFB1 /* SE.cpp */; };
+		8F6CCDE623715ED800F9CFB1 /* CA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F6CCDE523715ED800F9CFB1 /* CA.cpp */; };
 		8F802BF523448CE5000D5AF1 /* RS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F802BF423448CE5000D5AF1 /* RS.cpp */; };
 		8FA1B1CA233E012400FF9F44 /* BaseMM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FA1B1C8233E012400FF9F44 /* BaseMM.cpp */; };
 		8FA1B1CD233E050800FF9F44 /* ILP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FA1B1CB233E050800FF9F44 /* ILP.cpp */; };
 		8FA1B1D1233F1DD800FF9F44 /* LP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FA1B1CF233F1DD800FF9F44 /* LP.cpp */; };
 		8FA1B1D4233F565500FF9F44 /* BnC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FA1B1D2233F565500FF9F44 /* BnC.cpp */; };
 		8FA1B1D7233F567400FF9F44 /* RC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FA1B1D5233F567400FF9F44 /* RC.cpp */; };
-		8FC0318E232F616700F7FAFD /* Capacity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FC0318C232F616700F7FAFD /* Capacity.cpp */; };
 		8FD3B197232B346500FCDDEC /* Base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FD3B195232B346500FCDDEC /* Base.cpp */; };
 		8FD3B19E232B36B800FCDDEC /* Graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FD3B19C232B36B800FCDDEC /* Graph.cpp */; };
 		8FD3B1A1232B389C00FCDDEC /* FordFulkersonAlgo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FD3B19F232B389C00FCDDEC /* FordFulkersonAlgo.cpp */; };
@@ -61,6 +61,7 @@
 		8F3E948F236A8A7B00077CE6 /* Sequencer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = Sequencer.c; sourceTree = "<group>"; };
 		8F3EE70D2355AEFD004BB9BB /* IP.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IP.cpp; sourceTree = "<group>"; };
 		8F6CCDE323715C7A00F9CFB1 /* SE.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SE.cpp; sourceTree = "<group>"; };
+		8F6CCDE523715ED800F9CFB1 /* CA.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CA.cpp; sourceTree = "<group>"; };
 		8F802BF423448CE5000D5AF1 /* RS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RS.cpp; sourceTree = "<group>"; };
 		8FA1B1C8233E012400FF9F44 /* BaseMM.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BaseMM.cpp; sourceTree = "<group>"; };
 		8FA1B1C9233E012400FF9F44 /* BaseMM.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BaseMM.hpp; sourceTree = "<group>"; };
@@ -68,7 +69,6 @@
 		8FA1B1CF233F1DD800FF9F44 /* LP.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LP.cpp; sourceTree = "<group>"; };
 		8FA1B1D2233F565500FF9F44 /* BnC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BnC.cpp; sourceTree = "<group>"; };
 		8FA1B1D5233F567400FF9F44 /* RC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RC.cpp; sourceTree = "<group>"; };
-		8FC0318C232F616700F7FAFD /* Capacity.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Capacity.cpp; sourceTree = "<group>"; };
 		8FD3B195232B346500FCDDEC /* Base.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Base.cpp; sourceTree = "<group>"; };
 		8FD3B196232B346500FCDDEC /* Base.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Base.hpp; sourceTree = "<group>"; };
 		8FD3B19C232B36B800FCDDEC /* Graph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Graph.cpp; sourceTree = "<group>"; };
@@ -160,7 +160,7 @@
 				8F20452B234DB7A800466945 /* TB.cpp */,
 				8F20452C234DB7A800466945 /* TB.hpp */,
 				8F6CCDE323715C7A00F9CFB1 /* SE.cpp */,
-				8FC0318C232F616700F7FAFD /* Capacity.cpp */,
+				8F6CCDE523715ED800F9CFB1 /* CA.cpp */,
 				8F802BF423448CE5000D5AF1 /* RS.cpp */,
 				8FD3B1AB232CE8CF00FCDDEC /* Cover.cpp */,
 				8F3EE70D2355AEFD004BB9BB /* IP.cpp */,
@@ -257,11 +257,11 @@
 				8F2113DE23288B76001CF34C /* main.cpp in Sources */,
 				8FD3B1A1232B389C00FCDDEC /* FordFulkersonAlgo.cpp in Sources */,
 				8FA1B1CA233E012400FF9F44 /* BaseMM.cpp in Sources */,
-				8FC0318E232F616700F7FAFD /* Capacity.cpp in Sources */,
 				8F2113EF2328945F001CF34C /* Problem.cpp in Sources */,
 				8FA1B1D7233F567400FF9F44 /* RC.cpp in Sources */,
 				8FFBFBAD236A8727003151B9 /* IH.cpp in Sources */,
 				8FD3B197232B346500FCDDEC /* Base.cpp in Sources */,
+				8F6CCDE623715ED800F9CFB1 /* CA.cpp in Sources */,
 				8F6CCDE423715C7A00F9CFB1 /* SE.cpp in Sources */,
 				8FA1B1CD233E050800FF9F44 /* ILP.cpp in Sources */,
 				8F20452D234DB7A800466945 /* TB.cpp in Sources */,
