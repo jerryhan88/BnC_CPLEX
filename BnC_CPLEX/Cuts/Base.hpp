@@ -60,10 +60,12 @@ public:
     IloEnv env;
     IloNumVar** x_ij;
     double** _x_ij;
+//    IloArray<IloNumArray> _x_ij;
     std::string logPath;
     TimeTracker* tt;
     int numGenCuts = 0;
     double time4Sep = 0.0;
+    double time4FDV = 0.0;
     int num4Sep = 0;
     //
     CutComposer(Problem* prob, std::vector<CutBase*>& cuts, IloEnv& env, IloNumVar** x_ij, std::string logPath, TimeTracker* tt);
@@ -72,6 +74,10 @@ public:
             delete cut;
         }
         cuts.clear();
+        for (int i: (*prob).N) {
+            delete [] _x_ij[i];
+        }
+        delete [] _x_ij;
     };
     //
     virtual void invoke (const IloCplex::Callback::Context &context);

@@ -43,6 +43,9 @@ public:
     virtual double getTime4Sep() {
         throw "Should override getTime4Sep()";
     }
+    virtual double getTime4FDV() {
+        throw "Should override getTime4FDV()";
+    }
     virtual int getNum4Sep() {
         throw "Should override getNum4Sep()";
     }
@@ -69,6 +72,9 @@ public:
     double getTime4Sep() {
         return -1.0;
     }
+    double getTime4FDV() {
+        return -1.0;
+    }
     int getNum4Sep() {
         return -1;
     }
@@ -84,6 +90,7 @@ public:
     }
     int getNumGenCuts();
     double getTime4Sep();
+    double getTime4FDV();
     int getNum4Sep();
 };
 
@@ -96,6 +103,9 @@ public:
         return -1;
     }
     double getTime4Sep() {
+        return -1.0;
+    }
+    double getTime4FDV() {
         return -1.0;
     }
     int getNum4Sep() {
@@ -115,6 +125,9 @@ public:
     void solve();
     int getNumGenCuts() {
         return -1;
+    }
+    double getTime4FDV() {
+        return -1.0;
     }
     double getTime4Sep() {
         return -1.0;

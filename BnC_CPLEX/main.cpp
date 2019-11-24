@@ -89,7 +89,7 @@ void write_solution(Problem *prob, FilePathOrganizer &fpo, TimeTracker &tt, Base
                 mm->cplex->getNcols());
     } else {
         sprintf(row,
-                "%f,%f,%f,%f,\"{\'numNodes\': %lld, \'numGenCuts\': %d, \'time4Sep\': %f, \'num4Sep\': %d}\"",
+                "%f,%f,%f,%f,\"{\'numNodes\': %lld, \'numGenCuts\': %d, \'time4Sep\': %f,\'time4FDV\': %f, \'num4Sep\': %d}\"",
                 mm->cplex->getObjValue(),
                 mm->cplex->getMIPRelativeGap(),
                 tt.get_elipsedTimeCPU(),
@@ -97,6 +97,7 @@ void write_solution(Problem *prob, FilePathOrganizer &fpo, TimeTracker &tt, Base
                 mm->cplex->getNnodes64(),
                 mm->getNumGenCuts(),
                 mm->getTime4Sep(),
+                mm->getTime4FDV(),
                 mm->getNum4Sep());
     }
     fout_csv << row << "\n";
@@ -310,6 +311,29 @@ int main(int argc, const char * argv[]) {
                 }
                 mm->start_fromGHSol(gh.x_ij, gh.u_i);
             }
+//            mm->cplex->setParam(IloCplex::Param::Threads, 1);
+//
+//            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::HeuristicFreq, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::BQP, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::Cliques, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::Covers, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::Disjunctive, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::FlowCovers, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::PathCut, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::Gomory, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::GUBCovers, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::Implied, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::LocalImplied, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::LiftProj, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::MIRCut, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::MCFCut, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::RLT, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::ZeroHalfCut, -1);
+            
+            
+                  
+                  
+            
             mm->cplex->solve();
             if (mm->cplex->getStatus() == IloAlgorithm::Infeasible) {
                 mm->cplex->exportModel(fpo.lpPath.c_str());

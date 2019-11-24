@@ -38,6 +38,10 @@ double BnC::getTime4Sep() {
     return cc->time4Sep;
 }
 
+double BnC::getTime4FDV() {
+    return cc->time4FDV;
+}
+
 int BnC::getNum4Sep() {
     return cc->num4Sep;
 }

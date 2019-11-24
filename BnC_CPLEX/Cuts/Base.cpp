@@ -26,9 +26,12 @@ CutComposer::CutComposer(Problem *prob, std::vector<CutBase*> &cuts, IloEnv &env
     this->logPath = logPath;
     this->tt = tt;
     //
-    _x_ij = new double*[(*prob).N.size()];
+//    _x_ij = IloArray<IloNumArray>(this->env, (*prob).N.size());
+    _x_ij = new IloNum*[(*prob).N.size()];
     for (int i: (*prob).N) {
-        _x_ij[i] = new double[(*prob).N.size()];
+//        _x_ij[i] = IloNumArray(this->env, (*prob).N.size());
+        
+        _x_ij[i] = new IloNum[(*prob).N.size()];
     }
 }
 
@@ -45,6 +48,8 @@ double** CutComposer::get_x_ij(const IloCplex::Callback::Context &context) {
 
 void CutComposer::set_x_ij(const IloCplex::Callback::Context &context) {
     for (int i: (*prob).N) {
+//        context.getRelaxationPoint(x_ij[i], _x_ij[i]);
+        
         for (int j: (*prob).N) {
             _x_ij[i][j] = context.getRelaxationPoint(x_ij[i][j]);
         }
@@ -55,18 +60,24 @@ void CutComposer::invoke (const IloCplex::Callback::Context &context) {
     if ( context.inRelaxation() ) {
         mtx.lock();
 //        double **_x_ij = get_x_ij(context);
+        double timeRecored = tt->get_elipsedTimeCPU();
         set_x_ij(context);
+        time4FDV += tt->get_elipsedTimeCPU() - timeRecored;
+        timeRecored = tt->get_elipsedTimeCPU();
         if (logPath == "") {
             for (CutBase *c: cuts) {
                 c->add_cut(_x_ij, this, context);
             }
+            time4Sep += tt->get_elipsedTimeCPU() - timeRecored;
+            num4Sep += 1;
         } else {
-            double timeRecored = tt->get_elipsedTimeCPU();
             std::vector<std::string> violatedCnsts;
             for (CutBase *c: cuts) {
                 std::string cnsts = c->add_cut_wLogging(_x_ij, this, context);
                 violatedCnsts.push_back(cnsts);
             }
+            time4Sep += tt->get_elipsedTimeCPU() - timeRecored;
+            num4Sep += 1;
             //
             long nodecnt = context.getLongInfo(IloCplex::Callback::Context::Info::NodeCount);
             double objbst = context.getIncumbentObjective();
@@ -85,8 +96,7 @@ void CutComposer::invoke (const IloCplex::Callback::Context &context) {
             char log[_log.size() + 1];
             std::strcpy(log, _log.c_str());
             appendRow(logPath, log);
-            time4Sep += tt->get_elipsedTimeCPU() - timeRecored;
-            num4Sep += 1;
+            
         }
 //        for (int i: (*prob).N) {
 //            delete [] _x_ij[i];
