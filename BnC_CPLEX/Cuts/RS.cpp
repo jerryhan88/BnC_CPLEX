@@ -29,7 +29,7 @@ int get_numFlowReturn(std::set<int> S1, Problem* prob) {
     return numFlowReturn;
 }
 
-double get_LHS_RS(const std::set<int>& S, double** x_ij, Problem* prob) {
+double get_LHS_RS(const std::set<int>& S, IloArray<IloNumArray>& x_ij, Problem* prob) {
     double lhs = 0.0;
     for (int i: S) {
         for (int j: S) {
@@ -41,14 +41,7 @@ double get_LHS_RS(const std::set<int>& S, double** x_ij, Problem* prob) {
     return lhs;
 }
 
-
-std::set<std::set<int>> solve_maxRS(double** x_ij, Problem* prob) {
-    std::set<std::set<int>> outputSets;
-    run_TB4CG(x_ij, prob, get_LHS_RS, outputSets);
-    return outputSets;
-}
-
-std::set<std::set<int>> solve_maxRS_constructCycle(double** x_ij, Problem* prob) {
+std::set<std::set<int>> solve_maxRS_constructCycle(IloArray<IloNumArray>& x_ij, Problem* prob) {
     std::set<std::set<int>> outputSets;
     //
     int numNodes = (int) (*prob).N.size();
@@ -98,7 +91,7 @@ std::set<std::set<int>> solve_maxRS_constructCycle(double** x_ij, Problem* prob)
 }
 
 
-std::set<std::set<int>> solve_maxRS_DyBFS(double** x_ij, Problem* prob) {
+std::set<std::set<int>> solve_maxRS_DyBFS(IloArray<IloNumArray>& x_ij, Problem* prob) {
     std::set<std::set<int>> outputSets;
     //
     int numNodes = (int) (*prob).N.size();
@@ -175,15 +168,17 @@ std::set<std::set<int>> solve_maxRS_DyBFS(double** x_ij, Problem* prob) {
 }
 
 RS_cut::RS_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd) : CutBase(ch_name, cutManagerType, isLocalCutAdd) {
-    if (ch_name.substr(0, 1) == "e") {
-        separationAlgo = solve_multipleMaxFlow;
-    } else {
-        assert(ch_name.substr(0, 1) == "h");
+    separationAlgo = solve_maxRS_constructCycle;
+    
+//    if (ch_name.substr(0, 1) == "e") {
+//        separationAlgo = solve_multipleMaxFlow;
+//    } else {
+//        assert(ch_name.substr(0, 1) == "h");
 //        separationAlgo = solve_maxRS;
-        separationAlgo = solve_maxRS_constructCycle;
+        
 //        separationAlgo = solve_maxRS_DyBFS;
         
-    }
+//    }
 }
 
 
@@ -201,7 +196,7 @@ bool RS_cut::valid_subset(const std::set<int>& S1, Problem *prob) {
     return true;
 }
 
-std::set<std::set<int>> RS_cut::solve_separationProb(double** x_ij, CutComposer* cc) {
+std::set<std::set<int>> RS_cut::solve_separationProb(IloArray<IloNumArray>& x_ij, CutComposer* cc) {
     Problem *prob = cc->prob;
     std::set<std::set<int>> validSets;
     std::set<std::set<int>> outputSets = separationAlgo(x_ij, prob);
@@ -223,7 +218,7 @@ std::set<std::set<int>> RS_cut::solve_separationProb(double** x_ij, CutComposer*
     return validSets;
 }
 
-void RS_cut::set_LHS_Expr(IloExpr &lhs_expr, IloNumVar **x_ij, const std::set<int> &S1, Problem* prob) {
+void RS_cut::set_LHS_Expr(IloExpr &lhs_expr, IloNumVarArray* x_ij, const std::set<int> &S1, Problem* prob) {
     for (int i: S1) {
         for (int j: S1) {
             lhs_expr += x_ij[i][j];
@@ -233,7 +228,7 @@ void RS_cut::set_LHS_Expr(IloExpr &lhs_expr, IloNumVar **x_ij, const std::set<in
     lhs_expr -= ((int) S1.size() - (1 + numFlowReturn));
 }
 
-IloRangeArray RS_cut::get_cut_cnsts(double** x_ij, CutComposer* cc) {
+IloRangeArray RS_cut::get_cut_cnsts(IloArray<IloNumArray>& x_ij, CutComposer* cc) {
     std::set<std::set<int>> validSets = solve_separationProb(x_ij, cc);
     char buf[2048];
     IloRangeArray cnsts(cc->env);
@@ -260,12 +255,12 @@ void RS_cut::add_cnsts2Model(const std::set<std::set<int>>& validSets,  CutCompo
     }
 }
 
-void RS_cut::add_cut(double** x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
+void RS_cut::add_cut(IloArray<IloNumArray>& x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
     std::set<std::set<int>> validSets = solve_separationProb(x_ij, cc);
     add_cnsts2Model(validSets, cc, context);
 }
 
-std::string RS_cut::add_cut_wLogging(double** x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
+std::string RS_cut::add_cut_wLogging(IloArray<IloNumArray>& x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
     std::set<std::set<int>> validSets = solve_separationProb(x_ij, cc);
     add_cnsts2Model(validSets, cc, context);
     std::string addedCuts;

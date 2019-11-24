@@ -28,7 +28,6 @@
 		8FD3B197232B346500FCDDEC /* Base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FD3B195232B346500FCDDEC /* Base.cpp */; };
 		8FD3B19E232B36B800FCDDEC /* Graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FD3B19C232B36B800FCDDEC /* Graph.cpp */; };
 		8FD3B1A1232B389C00FCDDEC /* FordFulkersonAlgo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FD3B19F232B389C00FCDDEC /* FordFulkersonAlgo.cpp */; };
-		8FD3B1AD232CE8CF00FCDDEC /* Cover.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FD3B1AB232CE8CF00FCDDEC /* Cover.cpp */; };
 		8FFBFBAD236A8727003151B9 /* IH.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FFBFBAB236A8727003151B9 /* IH.cpp */; };
 /* End PBXBuildFile section */
 
@@ -75,7 +74,6 @@
 		8FD3B19D232B36B800FCDDEC /* Graph.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Graph.hpp; sourceTree = "<group>"; };
 		8FD3B19F232B389C00FCDDEC /* FordFulkersonAlgo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FordFulkersonAlgo.cpp; sourceTree = "<group>"; };
 		8FD3B1A0232B389C00FCDDEC /* FordFulkersonAlgo.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = FordFulkersonAlgo.hpp; sourceTree = "<group>"; };
-		8FD3B1AB232CE8CF00FCDDEC /* Cover.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Cover.cpp; sourceTree = "<group>"; };
 		8FFBFBAB236A8727003151B9 /* IH.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IH.cpp; sourceTree = "<group>"; };
 		8FFBFBAC236A8727003151B9 /* IH.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IH.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -162,7 +160,6 @@
 				8F6CCDE323715C7A00F9CFB1 /* SE.cpp */,
 				8F6CCDE523715ED800F9CFB1 /* CA.cpp */,
 				8F802BF423448CE5000D5AF1 /* RS.cpp */,
-				8FD3B1AB232CE8CF00FCDDEC /* Cover.cpp */,
 				8F3EE70D2355AEFD004BB9BB /* IP.cpp */,
 			);
 			path = Cuts;
@@ -265,7 +262,6 @@
 				8F6CCDE423715C7A00F9CFB1 /* SE.cpp in Sources */,
 				8FA1B1CD233E050800FF9F44 /* ILP.cpp in Sources */,
 				8F20452D234DB7A800466945 /* TB.cpp in Sources */,
-				8FD3B1AD232CE8CF00FCDDEC /* Cover.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

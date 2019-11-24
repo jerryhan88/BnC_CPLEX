@@ -29,12 +29,14 @@ public:
     IloEnv env;
     IloCplex* cplex;
     IloModel* cplexModel;
-    IloNumVar** x_ij;
+//    IloNumVar** x_ij;
+    IloNumVarArray* x_ij;
     IloNumVar* u_i;
     //
     BaseMM(Problem *prob, std::string logPath, char xType, bool isTightenModel);
     ~BaseMM();
     void get_x_ij(double** _x_ij);
+    void get_x_ij(IloArray<IloNumArray>& _x_ij);
     void get_u_i(double* _u_i);
     void start_fromGHSol(double** _x_ij, double* _u_i);
     virtual int getNumGenCuts() {

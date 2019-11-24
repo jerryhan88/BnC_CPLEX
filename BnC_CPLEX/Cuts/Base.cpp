@@ -16,7 +16,7 @@ void CutBase::addUserCutwCust(const IloCplex::Callback::Context &context, IloExp
     context.addUserCut(lhs_expr <= 0, cutManagerType, isLocalCutAdd);
 }
 
-CutComposer::CutComposer(Problem *prob, std::vector<CutBase*> &cuts, IloEnv &env, IloNumVar **x_ij, std::string logPath, TimeTracker* tt) {
+CutComposer::CutComposer(Problem *prob, std::vector<CutBase*> &cuts, IloEnv &env, IloNumVarArray* x_ij, std::string logPath, TimeTracker* tt) {
     this->prob = prob;
     for (CutBase *c: cuts) {
         this->cuts.push_back(c);
@@ -26,33 +26,24 @@ CutComposer::CutComposer(Problem *prob, std::vector<CutBase*> &cuts, IloEnv &env
     this->logPath = logPath;
     this->tt = tt;
     //
-//    _x_ij = IloArray<IloNumArray>(this->env, (*prob).N.size());
-    _x_ij = new IloNum*[(*prob).N.size()];
+    _x_ij = IloArray<IloNumArray>(this->env, (*prob).N.size());
+//    _x_ij = new IloNum*[(*prob).N.size()];
     for (int i: (*prob).N) {
-//        _x_ij[i] = IloNumArray(this->env, (*prob).N.size());
+        _x_ij[i] = IloNumArray(this->env, (*prob).N.size());
         
-        _x_ij[i] = new IloNum[(*prob).N.size()];
+//        _x_ij[i] = new IloNum[(*prob).N.size()];
     }
-}
-
-double** CutComposer::get_x_ij(const IloCplex::Callback::Context &context) {
-    double **_x_ij = new double*[(*prob).N.size()];
-    for (int i: (*prob).N) {
-        _x_ij[i] = new double[(*prob).N.size()];
-        for (int j: (*prob).N) {
-            _x_ij[i][j] = context.getRelaxationPoint(x_ij[i][j]);
-        }
-    }
-    return _x_ij;
 }
 
 void CutComposer::set_x_ij(const IloCplex::Callback::Context &context) {
     for (int i: (*prob).N) {
-//        context.getRelaxationPoint(x_ij[i], _x_ij[i]);
         
-        for (int j: (*prob).N) {
-            _x_ij[i][j] = context.getRelaxationPoint(x_ij[i][j]);
-        }
+        context.getRelaxationPoint(x_ij[i], _x_ij[i]);
+        
+        
+//        for (int j: (*prob).N) {
+//            _x_ij[i][j] = context.getRelaxationPoint(x_ij[i][j]);
+//        }
     }
 }
 
