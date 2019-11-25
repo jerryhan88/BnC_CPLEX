@@ -35,7 +35,7 @@ double get_wS(const std::set<int>& S1, Problem* prob) {
     return wS;
 }
 
-double get_LHS_CA(const std::set<int>& S, IloArray<IloNumArray>& x_ij, Problem* prob) {
+double get_LHS_CA(const std::set<int>& S, double** x_ij, Problem* prob) {
     double lhs = 0.0;
     for (int i: S) {
         for (int j: S) {
@@ -50,7 +50,7 @@ double get_LHS_CA(const std::set<int>& S, IloArray<IloNumArray>& x_ij, Problem* 
     return lhs;
 }
 
-std::set<std::set<int>> solve_maxCA_constructCycle(IloArray<IloNumArray>& x_ij, Problem* prob) {
+std::set<std::set<int>> solve_maxCA_constructCycle(double** x_ij, Problem* prob) {
     std::set<std::set<int>> outputSets;
     //
     int numNodes = (int) (*prob).N.size();
@@ -104,7 +104,7 @@ std::set<std::set<int>> solve_maxCA_constructCycle(IloArray<IloNumArray>& x_ij, 
     return outputSets;
 }
 
-std::set<std::set<int>> solve_maxCA_DyBFS(IloArray<IloNumArray>& x_ij, Problem* prob) {
+std::set<std::set<int>> solve_maxCA_DyBFS(double** x_ij, Problem* prob) {
     std::set<std::set<int>> outputSets;
     //
     int numNodes = (int) (*prob).N.size();
@@ -187,7 +187,14 @@ std::set<std::set<int>> solve_maxCA_DyBFS(IloArray<IloNumArray>& x_ij, Problem* 
 }
 
 CA_cut::CA_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd) : CutBase(ch_name, cutManagerType, isLocalCutAdd) {
-    separationAlgo = solve_maxCA_constructCycle;
+    if (ch_name.substr(0, 1) == "e") {
+        separationAlgo = solve_multipleMaxFlow;
+    } else {
+        assert(ch_name.substr(0, 1) == "h");
+//        separationAlgo = solve_maxCA;
+        separationAlgo = solve_maxCA_constructCycle;
+//        separationAlgo = solve_maxCA_DyBFS;
+    }
 }
 
 bool CA_cut::valid_subset(const std::set<int>& S1, Problem *prob) {
@@ -202,7 +209,7 @@ bool CA_cut::valid_subset(const std::set<int>& S1, Problem *prob) {
     return true;
 }
 
-std::set<std::set<int>> CA_cut::solve_separationProb(IloArray<IloNumArray>& x_ij, CutComposer* cc) {
+std::set<std::set<int>> CA_cut::solve_separationProb(double** x_ij, CutComposer* cc) {
     Problem *prob = cc->prob;
     std::set<std::set<int>> validSets;
     std::set<std::set<int>> outputSets = separationAlgo(x_ij, prob);
@@ -217,7 +224,7 @@ std::set<std::set<int>> CA_cut::solve_separationProb(IloArray<IloNumArray>& x_ij
     return validSets;
 }
 
-void CA_cut::set_LHS_Expr(IloExpr& lhs_expr, IloNumVarArray* x_ij, const std::set<int>& S1, Problem* prob) {
+void CA_cut::set_LHS_Expr(IloExpr& lhs_expr, IloNumVar** x_ij, const std::set<int>& S1, Problem* prob) {
     for (int i: S1) {
         for (int j: S1) {
             lhs_expr += x_ij[i][j];
@@ -230,7 +237,7 @@ void CA_cut::set_LHS_Expr(IloExpr& lhs_expr, IloNumVarArray* x_ij, const std::se
     lhs_expr -= ((int) S1.size() - maxCapa);
 }
 
-IloRangeArray CA_cut::get_cut_cnsts(IloArray<IloNumArray>& x_ij, CutComposer* cc) {
+IloRangeArray CA_cut::get_cut_cnsts(double** x_ij, CutComposer* cc) {
     std::set<std::set<int>> validSets = solve_separationProb(x_ij, cc);
     char buf[2048];
     IloRangeArray cnsts(cc->env);
@@ -257,12 +264,12 @@ void CA_cut::add_cnsts2Model(const std::set<std::set<int>>& validSets,  CutCompo
     }
 }
 
-void CA_cut::add_cut(IloArray<IloNumArray>& x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
+void CA_cut::add_cut(double** x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
     std::set<std::set<int>> validSets = solve_separationProb(x_ij, cc);
     add_cnsts2Model(validSets, cc, context);
 }
 
-std::string CA_cut::add_cut_wLogging(IloArray<IloNumArray>& x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
+std::string CA_cut::add_cut_wLogging(double** x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
     std::set<std::set<int>> validSets = solve_separationProb(x_ij, cc);
     add_cnsts2Model(validSets, cc, context);
     std::string addedCuts;
@@ -280,7 +287,3 @@ std::string CA_cut::add_cut_wLogging(IloArray<IloNumArray>& x_ij, CutComposer* c
     //
     return addedCuts;
 }
-
-
-
-

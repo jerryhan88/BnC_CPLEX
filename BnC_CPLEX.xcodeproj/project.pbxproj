@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8F20452D234DB7A800466945 /* TB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F20452B234DB7A800466945 /* TB.cpp */; };
 		8F2113DE23288B76001CF34C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F2113DD23288B76001CF34C /* main.cpp */; };
 		8F2113E623288E94001CF34C /* libconcert.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F2113E523288E94001CF34C /* libconcert.a */; };
 		8F2113EA23288EA5001CF34C /* libcplex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F2113E723288EA5001CF34C /* libcplex.a */; };
@@ -44,8 +43,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		8F20452B234DB7A800466945 /* TB.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TB.cpp; sourceTree = "<group>"; };
-		8F20452C234DB7A800466945 /* TB.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TB.hpp; sourceTree = "<group>"; };
 		8F2113DA23288B76001CF34C /* BnC_CPLEX */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BnC_CPLEX; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F2113DD23288B76001CF34C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		8F2113E523288E94001CF34C /* libconcert.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libconcert.a; path = "../../../../Applications/CPLEX_Studio128/concert/lib/x86-64_osx/static_pic/libconcert.a"; sourceTree = "<group>"; };
@@ -155,8 +152,6 @@
 			children = (
 				8FD3B195232B346500FCDDEC /* Base.cpp */,
 				8FD3B196232B346500FCDDEC /* Base.hpp */,
-				8F20452B234DB7A800466945 /* TB.cpp */,
-				8F20452C234DB7A800466945 /* TB.hpp */,
 				8F6CCDE323715C7A00F9CFB1 /* SE.cpp */,
 				8F6CCDE523715ED800F9CFB1 /* CA.cpp */,
 				8F802BF423448CE5000D5AF1 /* RS.cpp */,
@@ -261,7 +256,6 @@
 				8F6CCDE623715ED800F9CFB1 /* CA.cpp in Sources */,
 				8F6CCDE423715C7A00F9CFB1 /* SE.cpp in Sources */,
 				8FA1B1CD233E050800FF9F44 /* ILP.cpp in Sources */,
-				8F20452D234DB7A800466945 /* TB.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

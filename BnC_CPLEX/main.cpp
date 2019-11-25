@@ -312,8 +312,24 @@ int main(int argc, const char * argv[]) {
                 mm->start_fromGHSol(gh.x_ij, gh.u_i);
             }
 //            mm->cplex->setParam(IloCplex::Param::Threads, 1);
+            
+//            mm->cplex->setParam(IloCplex::Param::RootAlgorithm, 1);
+//            mm->cplex->setParam(IloCplex::Param::NodeAlgorithm, 1);
 //
+//            mm->cplex->setParam(IloCplex::Param::MIP::Display, 5);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Interval, 1);
+//
+//            mm->cplex->setParam(IloCplex::Param::MIP::SubMIP::Scale, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::SubMIP::NodeLimit, 1);
+
+//            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::Probe, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::PresolveNode, -1);
 //            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::HeuristicFreq, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::FPHeur, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::RINSHeur, -1);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::LBHeur, false);
+//            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::Search, 1);
+//
 //            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::BQP, -1);
 //            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::Cliques, -1);
 //            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::Covers, -1);
@@ -329,11 +345,7 @@ int main(int argc, const char * argv[]) {
 //            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::MCFCut, -1);
 //            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::RLT, -1);
 //            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::ZeroHalfCut, -1);
-            
-            
-                  
-                  
-            
+
             mm->cplex->solve();
             if (mm->cplex->getStatus() == IloAlgorithm::Infeasible) {
                 mm->cplex->exportModel(fpo.lpPath.c_str());

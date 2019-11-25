@@ -21,10 +21,9 @@ void BaseMM::build_baseModel() {
 BaseMM::BaseMM(Problem *prob, std::string logPath, char xType, bool isTightenModel) {
     this->prob = prob;
     this->logPath = logPath;
-    x_ij = new IloNumVarArray[(*prob).N.size()];
+    x_ij = new IloNumVar*[(*prob).N.size()];
     for (int i: (*prob).N) {
-        x_ij[i] = IloNumVarArray(env, (*prob).N.size());
-//        x_ij[i] = new IloNumVar[(*prob).N.size()];
+        x_ij[i] = new IloNumVar[(*prob).N.size()];
     }
     u_i = new IloNumVar[(*prob).N.size()];
     cplexModel = new IloModel(env);
@@ -39,8 +38,8 @@ BaseMM::BaseMM(Problem *prob, std::string logPath, char xType, bool isTightenMod
 }
 
 BaseMM::~BaseMM() {
-//    for (int i = 0; i < (*prob).N.size(); i++)
-//        delete [] x_ij[i];
+    for (int i = 0; i < (*prob).N.size(); i++)
+        delete [] x_ij[i];
     delete [] x_ij;
     delete [] u_i;
     delete cplexModel;
@@ -48,14 +47,6 @@ BaseMM::~BaseMM() {
 }
 
 void BaseMM::get_x_ij(double **_x_ij) {
-    for (int i: (*prob).N) {
-        for (int j: (*prob).N) {
-            _x_ij[i][j] = cplex->getValue(x_ij[i][j]);
-        }
-    }
-}
-
-void BaseMM::get_x_ij(IloArray<IloNumArray>& _x_ij) {
     for (int i: (*prob).N) {
         for (int j: (*prob).N) {
             _x_ij[i][j] = cplex->getValue(x_ij[i][j]);
@@ -371,4 +362,3 @@ void BaseMM::def_dvs(char xType) {
         u_i[i] = IloNumVar(env, 0.0, DBL_MAX, ILOFLOAT, buf);
     }
 }
-

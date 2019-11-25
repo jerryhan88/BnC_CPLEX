@@ -11,7 +11,7 @@
 
 
 
-std::set<std::set<edge>> solve_allNodes(IloArray<IloNumArray>& x_ij, Problem *prob) {
+std::set<std::set<edge>> solve_allNodes(double** x_ij, Problem *prob) {
     std::set<std::set<edge>> outputSets;
     //
     double* al_i = (*prob).al_i;
@@ -156,7 +156,7 @@ bool IP_cut::valid_subset(const std::set<edge>& S1) {
     }
 }
 
-std::set< std::set<edge> > IP_cut::solve_separationProb(IloArray<IloNumArray>& x_ij, CutComposer* cc) {
+std::set< std::set<edge> > IP_cut::solve_separationProb(double** x_ij, CutComposer* cc) {
     Problem *prob = cc->prob;
     std::set<std::set<edge>> validSets;
     std::set<std::set<edge>> outputSets = separationAlgo(x_ij, prob);
@@ -183,14 +183,14 @@ std::set< std::set<edge> > IP_cut::solve_separationProb(IloArray<IloNumArray>& x
     return validSets;
 }
 
-void IP_cut::set_LHS_Expr(IloExpr& lhs_expr, IloNumVarArray* x_ij, const std::set<edge>& S1) {
+void IP_cut::set_LHS_Expr(IloExpr& lhs_expr, IloNumVar** x_ij, const std::set<edge>& S1) {
     for (edge e: S1) {
         lhs_expr += x_ij[e.first][e.second];
     }
     lhs_expr -= ((int) S1.size() - 1);
 }
 
-IloRangeArray IP_cut::get_cut_cnsts(IloArray<IloNumArray>& x_ij, CutComposer* cc) {
+IloRangeArray IP_cut::get_cut_cnsts(double** x_ij, CutComposer* cc) {
     std::set<std::set<edge>> validSets = solve_separationProb(x_ij, cc);
     char buf[2048];
     IloRangeArray cnsts(cc->env);
@@ -217,12 +217,12 @@ void IP_cut::add_cnsts2Model(const std::set<std::set<edge>>& validSets, CutCompo
     }
 }
 
-void IP_cut::add_cut(IloArray<IloNumArray>& x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
+void IP_cut::add_cut(double** x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
     std::set<std::set<edge>> validSets = solve_separationProb(x_ij, cc);
     add_cnsts2Model(validSets, cc, context);
 }
 
-std::string IP_cut::add_cut_wLogging(IloArray<IloNumArray>& x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
+std::string IP_cut::add_cut_wLogging(double** x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
     std::set<std::set<edge>> validSets = solve_separationProb(x_ij, cc);
     add_cnsts2Model(validSets, cc, context);
     std::string addedCuts;
