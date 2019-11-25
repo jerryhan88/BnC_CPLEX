@@ -38,12 +38,12 @@ CutComposer::CutComposer(Problem *prob, std::vector<CutBase*> &cuts, IloEnv &env
 void CutComposer::set_x_ij(const IloCplex::Callback::Context &context) {
     for (int i: (*prob).N) {
         
-        context.getRelaxationPoint(x_ij[i], _x_ij[i]);
+//        context.getRelaxationPoint(x_ij[i], _x_ij[i]);
         
         
-//        for (int j: (*prob).N) {
-//            _x_ij[i][j] = context.getRelaxationPoint(x_ij[i][j]);
-//        }
+        for (int j: (*prob).N) {
+            _x_ij[i][j] = context.getRelaxationPoint(x_ij[i][j]);
+        }
     }
 }
 
