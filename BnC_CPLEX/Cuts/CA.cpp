@@ -50,7 +50,7 @@ double get_LHS_CA(const std::set<int>& S, double** x_ij, Problem* prob) {
     return lhs;
 }
 
-std::set<std::set<int>> solve_maxCA_constructCycle(double** x_ij, Problem* prob) {
+std::set<std::set<int>> solve_maxCA_constructCycle_RC(double** x_ij, Problem* prob) {
     std::set<std::set<int>> outputSets;
     //
     int numNodes = (int) (*prob).N.size();
@@ -104,83 +104,40 @@ std::set<std::set<int>> solve_maxCA_constructCycle(double** x_ij, Problem* prob)
     return outputSets;
 }
 
-std::set<std::set<int>> solve_maxCA_DyBFS(double** x_ij, Problem* prob) {
+std::set<std::set<int>> solve_maxCA_constructCycle(CutComposer* cc, const IloCplex::Callback::Context& context) {
     std::set<std::set<int>> outputSets;
+    Problem* prob = cc->prob;
     //
     int numNodes = (int) (*prob).N.size();
-    int numPosFlow[numNodes];
-    int** adjM;
-    adjM = new int*[numNodes];
-    for (int i = 0; i < numNodes; i++) {
-        numPosFlow[i] = 0;
-        adjM[i] = new int[numNodes];
-        for (int j = 0; j < numNodes; j++) {
-            if (x_ij[i][j] > 0.0 || x_ij[j][i] > 0.0) {
-                adjM[i][numPosFlow[i]] = j;
-                numPosFlow[i]++;
-            }
-        }
-    }
-    std::set<int> S1, S2;
+    bool visited[numNodes], isCycle;
+    int n1;
+    const int n2 = (*prob).d;
+    std::vector<int> path;
     for (int n0: prob->S) {
         if (n0 == (*prob).o || n0 == (*prob).d) {
             continue;
         }
-//        std::cout << "\n";
-        S1.clear();
-        S1.insert(n0);
-        std::map<int, double> boundary;
-        for (int i = 0; i < numPosFlow[n0]; i++) {
-            int n1 = adjM[n0][i];
-            if (n1 == (*prob).o || n1 == (*prob).d) {
-                continue;
-            }
-            S2.clear();
-            S2.insert(S1.begin(), S1.end());
-            S2.insert(n1);
-            boundary[n1] = get_LHS_CA(S2, x_ij, prob);
-        }
+        std::memset(visited, false, sizeof(visited));
+        isCycle = false;
         //
-        while (!boundary.empty()) {
-            int max_n = -1;
-            double max_LHS = -DBL_MAX;
-            for (auto kv: boundary) {
-                if (max_LHS < kv.second) {
-                    max_n = kv.first;
-                    max_LHS = kv.second;
-                }
-            }
-            //
-            assert(max_n != -1);
-            S1.insert(max_n);
-//            std::cout << "(";
-//            for (int i: S1) {
-//                std::cout << i << ",";
-//            }
-//            std::cout << "): " << max_LHS << std::endl;
-            if (max_LHS > 0.0) {
-                outputSets.insert(S1);
-                break;
-            } else if (max_LHS < -0.5) {
+        path.clear();
+        path.push_back(n0);
+        while (n0 != n2) {
+            visited[n0] = true;
+            n1 = getNextNodeByFlow(n0, cc, context);
+            if (n1 == -1) {
                 break;
             }
-            for (int i = 0; i < numPosFlow[max_n]; i++) {
-                int n1 = adjM[max_n][i];
-                if (n1 == (*prob).o || n1 == (*prob).d) {
-                    continue;
-                }
-                if (S1.find(n1) == S1.end()) {
-                    boundary[n1] = 0.0;
-                }
+            path.push_back(n1);
+            if (visited[n1]) {
+                isCycle = true;
+                break;
             }
-            boundary.erase(max_n);
-            for (auto kv: boundary) {
-                int n1 = kv.first;
-                S2.clear();
-                S2.insert(S1.begin(), S1.end());
-                S2.insert(n1);
-                boundary[n1] = get_LHS_CA(S2, x_ij, prob);
-            }
+            n0 = n1;
+        }
+        if (isCycle) {
+            std::set<int> S1(path.begin(), path.end());
+            outputSets.insert(S1);
         }
     }
     return outputSets;
@@ -188,12 +145,10 @@ std::set<std::set<int>> solve_maxCA_DyBFS(double** x_ij, Problem* prob) {
 
 CA_cut::CA_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd) : CutBase(ch_name, cutManagerType, isLocalCutAdd) {
     if (ch_name.substr(0, 1) == "e") {
-        separationAlgo = solve_multipleMaxFlow;
+        
     } else {
         assert(ch_name.substr(0, 1) == "h");
-//        separationAlgo = solve_maxCA;
         separationAlgo = solve_maxCA_constructCycle;
-//        separationAlgo = solve_maxCA_DyBFS;
     }
 }
 
@@ -209,13 +164,23 @@ bool CA_cut::valid_subset(const std::set<int>& S1, Problem *prob) {
     return true;
 }
 
-std::set<std::set<int>> CA_cut::solve_separationProb(double** x_ij, CutComposer* cc) {
+std::set<std::set<int>> CA_cut::solve_separationProb(CutComposer *cc, const IloCplex::Callback::Context &context) {
     Problem *prob = cc->prob;
     std::set<std::set<int>> validSets;
-    std::set<std::set<int>> outputSets = separationAlgo(x_ij, prob);
+    std::set<std::set<int>> outputSets = separationAlgo(cc, context);
     for (std::set<int> S1: outputSets) {
         if (valid_subset(S1, prob)) {
-            double lhs = get_LHS_CA(S1, x_ij, prob);
+            double lhs = 0.0;
+            for (int i: S1) {
+                for (int j: S1) {
+                    lhs += context.getRelaxationPoint(cc->x_ij[i][j]);;
+                }
+            }
+            int _vS, _wS, maxCapa;
+            _vS = std::ceil(get_vS(S1, prob) / (*prob).bv);
+            _wS = std::ceil(get_wS(S1, prob) / (*prob).bw);
+            maxCapa = _vS > _wS ? _vS : _wS;
+            lhs -= ((int) S1.size() - maxCapa);
             if (lhs > 0) {
                 validSets.insert(S1);
             }
@@ -238,7 +203,28 @@ void CA_cut::set_LHS_Expr(IloExpr& lhs_expr, IloNumVar** x_ij, const std::set<in
 }
 
 IloRangeArray CA_cut::get_cut_cnsts(double** x_ij, CutComposer* cc) {
-    std::set<std::set<int>> validSets = solve_separationProb(x_ij, cc);
+    Problem *prob = cc->prob;
+    std::set<std::set<int>> validSets;
+    std::set<std::set<int>> outputSets = solve_maxCA_constructCycle_RC(x_ij, prob);
+    for (std::set<int> S1: outputSets) {
+        if (valid_subset(S1, prob)) {
+            double lhs = 0.0;
+            for (int i: S1) {
+                for (int j: S1) {
+                    lhs += x_ij[i][j];;
+                }
+            }
+            int _vS, _wS, maxCapa;
+            _vS = std::ceil(get_vS(S1, prob) / (*prob).bv);
+            _wS = std::ceil(get_wS(S1, prob) / (*prob).bw);
+            maxCapa = _vS > _wS ? _vS : _wS;
+            lhs -= ((int) S1.size() - maxCapa);
+            if (lhs > 0) {
+                validSets.insert(S1);
+            }
+        }
+    }
+    //
     char buf[2048];
     IloRangeArray cnsts(cc->env);
     for (std::set<int> S1: validSets) {
@@ -264,13 +250,13 @@ void CA_cut::add_cnsts2Model(const std::set<std::set<int>>& validSets,  CutCompo
     }
 }
 
-void CA_cut::add_cut(double** x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
-    std::set<std::set<int>> validSets = solve_separationProb(x_ij, cc);
+void CA_cut::add_cut(CutComposer* cc, const IloCplex::Callback::Context& context) {
+    std::set<std::set<int>> validSets = solve_separationProb(cc, context);
     add_cnsts2Model(validSets, cc, context);
 }
 
-std::string CA_cut::add_cut_wLogging(double** x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
-    std::set<std::set<int>> validSets = solve_separationProb(x_ij, cc);
+std::string CA_cut::add_cut_wLogging(CutComposer* cc, const IloCplex::Callback::Context& context) {
+    std::set<std::set<int>> validSets = solve_separationProb(cc, context);
     add_cnsts2Model(validSets, cc, context);
     std::string addedCuts;
     for (std::set<int> S1: validSets) {

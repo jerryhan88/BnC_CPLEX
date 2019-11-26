@@ -11,7 +11,7 @@
 
 
 
-std::set<std::set<edge>> solve_allNodes(double** x_ij, Problem *prob) {
+std::set<std::set<edge>> solve_allNodes_RC(double** x_ij, Problem* prob) {
     std::set<std::set<edge>> outputSets;
     //
     double* al_i = (*prob).al_i;
@@ -95,51 +95,78 @@ std::set<std::set<edge>> solve_allNodes(double** x_ij, Problem *prob) {
         }
     }
     //
-//    for (int k: (*prob).K) {
-//        isCycle = false;
-//        std::memset(visited, false, sizeof(visited));
-//        is_TW_violated = false;
-//        is_DT_violated = false;
-//
-//        std::vector<edge> path;
-//        int n0 = (*prob).h_k[k], n1;
-//        const int n2 = (*prob).n_k[k];
-//        erest_deptTime = al_i[n0];
-//        tt = 0.0;
-//        while (n0 != n2) {
-//            visited[n0] = true;
-//            n1 = adjM_maxON[n0];
-//            if (n1 == -1) {
-//                break;
-//            }
-//            if (visited[n1]) {
-//                isCycle = true;
-//                break;
-//            }
-//            path.push_back(edge {n0, n1});
-//            if (n1 == (*prob).d) {
-//                break;
-//            }
-//            tt += t_ij[n0][n1];
-//            erest_arrvTime = erest_deptTime + t_ij[n0][n1];
-//            if (be_i[n1] < erest_arrvTime) {
-//                is_TW_violated = true;
-//                break;
-//            }
-//            if ((*prob).bu < tt) {
-//                is_DT_violated = true;
-//                break;
-//            }
-//            erest_deptTime = erest_arrvTime > al_i[n1] ? erest_arrvTime : al_i[n1];
-//            n0 = n1;
-//        }
-//        if (!isCycle) {
-//            if (is_TW_violated || is_DT_violated) {
-//                std::set<edge> S1(path.begin(), path.end());
-//                outputSets.insert(S1);
-//            }
-//        }
-//    }
+    return outputSets;
+}
+
+std::set<std::set<edge>> solve_allNodes(CutComposer* cc, const IloCplex::Callback::Context& context) {
+    std::set<std::set<edge>> outputSets;
+    Problem* prob = cc->prob;
+    //
+    double* al_i = (*prob).al_i;
+    double* be_i = (*prob).be_i;
+    double** t_ij = (*prob).t_ij;
+    int numNodes = (int) (*prob).N.size();
+    //
+    bool visited[numNodes], isCycle, lowLHS;
+    bool is_TW_violated, is_DT_violated, is_RS_violated;
+    double erest_deptTime, erest_arrvTime, tt, LHS;
+    for (int i = 0; i < (*prob)._S.size() - 1; i++) {
+        isCycle = false;
+        lowLHS = false;
+        std::memset(visited, false, sizeof(visited));
+        is_TW_violated = false;
+        is_DT_violated = false;
+        is_RS_violated = false;
+        //
+        std::vector<edge> path;
+        int n0 = (*prob)._S[i], n1;
+        const int n2 = (*prob)._S[i + 1];
+        erest_deptTime = al_i[n0];
+        tt = 0.0;
+        LHS = 1.0;
+        while (n0 != n2) {
+            visited[n0] = true;
+            n1 = getNextNodeByFlow(n0, cc, context);
+            if (n1 == -1) {
+                break;
+            }
+            if (visited[n1]) {
+                isCycle = true;
+                break;
+            }
+            path.push_back(edge {n0, n1});
+            LHS += (context.getRelaxationPoint(cc->x_ij[n0][n1]) - 1);
+            if (LHS <= 0) {
+                lowLHS = true;
+                break;
+            }
+            if (n1 == (*prob).d && n2 != (*prob).d) {
+                break;
+            }
+            tt += t_ij[n0][n1];
+            erest_arrvTime = erest_deptTime + t_ij[n0][n1];
+            if (be_i[n1] < erest_arrvTime) {
+                is_TW_violated = true;
+                break;
+            }
+            if ((*prob).bu < tt) {
+                is_DT_violated = true;
+                break;
+            }
+            if ((*prob).LS[i].find(n1) != (*prob).LS[i].end()) {
+                is_RS_violated = true;
+                break;
+            }
+            erest_deptTime = erest_arrvTime > al_i[n1] ? erest_arrvTime : al_i[n1];
+            n0 = n1;
+        }
+        if (!isCycle && !lowLHS) {
+            if (is_TW_violated || is_DT_violated || is_RS_violated) {
+                std::set<edge> S1(path.begin(), path.end());
+                outputSets.insert(S1);
+            }
+        }
+    }
     //
     return outputSets;
 }
@@ -156,28 +183,13 @@ bool IP_cut::valid_subset(const std::set<edge>& S1) {
     }
 }
 
-std::set< std::set<edge> > IP_cut::solve_separationProb(double** x_ij, CutComposer* cc) {
-    Problem *prob = cc->prob;
+std::set< std::set<edge> > IP_cut::solve_separationProb(CutComposer* cc, const IloCplex::Callback::Context& context) {
     std::set<std::set<edge>> validSets;
-    std::set<std::set<edge>> outputSets = separationAlgo(x_ij, prob);
+    std::set<std::set<edge>> outputSets = separationAlgo(cc, context);
     //
     for (std::set<edge> S1: outputSets) {
         if (valid_subset(S1)) {
             validSets.insert(S1);
-            double lhs = 0.0;
-            for (edge e: S1) {
-                lhs += x_ij[e.first][e.second];
-            }
-            lhs -= ((int) S1.size() - 1);
-//            std::cout << lhs << std::endl;
-//            double lhs = 0.0;
-//            for (edge e: S1) {
-//                lhs += x_ij[e.first][e.second];
-//            }
-//            lhs -= ((int) S1.size() - 1);
-//            if (lhs > 0) {
-//                validSets.insert(S1);
-//            }
         }
     }
     return validSets;
@@ -191,7 +203,14 @@ void IP_cut::set_LHS_Expr(IloExpr& lhs_expr, IloNumVar** x_ij, const std::set<ed
 }
 
 IloRangeArray IP_cut::get_cut_cnsts(double** x_ij, CutComposer* cc) {
-    std::set<std::set<edge>> validSets = solve_separationProb(x_ij, cc);
+    Problem *prob = cc->prob;
+    std::set<std::set<edge>> validSets;
+    std::set<std::set<edge>> outputSets = solve_allNodes_RC(x_ij, prob);
+    for (std::set<edge> S1: outputSets) {
+        if (valid_subset(S1)) {
+            validSets.insert(S1);
+        }
+    }
     char buf[2048];
     IloRangeArray cnsts(cc->env);
     for (std::set<edge> S1: validSets) {
@@ -217,13 +236,13 @@ void IP_cut::add_cnsts2Model(const std::set<std::set<edge>>& validSets, CutCompo
     }
 }
 
-void IP_cut::add_cut(double** x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
-    std::set<std::set<edge>> validSets = solve_separationProb(x_ij, cc);
+void IP_cut::add_cut(CutComposer* cc, const IloCplex::Callback::Context& context) {
+    std::set<std::set<edge>> validSets = solve_separationProb(cc, context);
     add_cnsts2Model(validSets, cc, context);
 }
 
-std::string IP_cut::add_cut_wLogging(double** x_ij, CutComposer* cc, const IloCplex::Callback::Context& context) {
-    std::set<std::set<edge>> validSets = solve_separationProb(x_ij, cc);
+std::string IP_cut::add_cut_wLogging(CutComposer* cc, const IloCplex::Callback::Context& context) {
+    std::set<std::set<edge>> validSets = solve_separationProb(cc, context);
     add_cnsts2Model(validSets, cc, context);
     std::string addedCuts;
     for (std::set<edge> S1: validSets) {
@@ -232,7 +251,6 @@ std::string IP_cut::add_cut_wLogging(double** x_ij, CutComposer* cc, const IloCp
         for (edge e: S1) {
             _route[e.first] = e.second;
             _routeRev[e.second] = e.first;
-//            addedCuts += std::to_string(e.first) + "-" + std::to_string(e.second) + "#";
         }
         int n1 = (*S1.begin()).second;
         int n0;

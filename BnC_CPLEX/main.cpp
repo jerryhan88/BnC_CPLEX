@@ -311,6 +311,9 @@ int main(int argc, const char * argv[]) {
                 }
                 mm->start_fromGHSol(gh.x_ij, gh.u_i);
             }
+            
+//            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::VariableSelect, 3);
+            
 //            mm->cplex->setParam(IloCplex::Param::Threads, 1);
             
 //            mm->cplex->setParam(IloCplex::Param::RootAlgorithm, 1);
