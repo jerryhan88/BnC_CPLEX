@@ -14,6 +14,7 @@
 		8F2113EC23288EA5001CF34C /* libcplexdistmip.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F2113E923288EA5001CF34C /* libcplexdistmip.a */; };
 		8F2113EF2328945F001CF34C /* Problem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F2113ED2328945F001CF34C /* Problem.cpp */; };
 		8F2113F623289AE3001CF34C /* Etc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F2113F423289AE3001CF34C /* Etc.cpp */; };
+		8F3B4A3223D5C64600E1F16A /* DF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F3B4A3023D5C64600E1F16A /* DF.cpp */; };
 		8F3E9490236A8A7C00077CE6 /* Sequencer.c in Sources */ = {isa = PBXBuildFile; fileRef = 8F3E948F236A8A7B00077CE6 /* Sequencer.c */; };
 		8F3EE70E2355AEFD004BB9BB /* IP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F3EE70D2355AEFD004BB9BB /* IP.cpp */; };
 		8F6CCDE423715C7A00F9CFB1 /* SE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F6CCDE323715C7A00F9CFB1 /* SE.cpp */; };
@@ -53,6 +54,8 @@
 		8F2113EE2328945F001CF34C /* Problem.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Problem.hpp; sourceTree = "<group>"; };
 		8F2113F423289AE3001CF34C /* Etc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Etc.cpp; sourceTree = "<group>"; };
 		8F2113F523289AE3001CF34C /* Etc.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Etc.hpp; sourceTree = "<group>"; };
+		8F3B4A3023D5C64600E1F16A /* DF.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DF.cpp; sourceTree = "<group>"; };
+		8F3B4A3123D5C64600E1F16A /* DF.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DF.hpp; sourceTree = "<group>"; };
 		8F3E948E236A8A7B00077CE6 /* Sequencer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Sequencer.h; sourceTree = "<group>"; };
 		8F3E948F236A8A7B00077CE6 /* Sequencer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = Sequencer.c; sourceTree = "<group>"; };
 		8F3EE70D2355AEFD004BB9BB /* IP.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IP.cpp; sourceTree = "<group>"; };
@@ -143,6 +146,8 @@
 				8FA1B1CF233F1DD800FF9F44 /* LP.cpp */,
 				8FA1B1D2233F565500FF9F44 /* BnC.cpp */,
 				8FA1B1D5233F567400FF9F44 /* RC.cpp */,
+				8F3B4A3023D5C64600E1F16A /* DF.cpp */,
+				8F3B4A3123D5C64600E1F16A /* DF.hpp */,
 			);
 			path = MathematicalModel;
 			sourceTree = "<group>";
@@ -244,6 +249,7 @@
 				8FA1B1D4233F565500FF9F44 /* BnC.cpp in Sources */,
 				8F2113F623289AE3001CF34C /* Etc.cpp in Sources */,
 				8FD3B19E232B36B800FCDDEC /* Graph.cpp in Sources */,
+				8F3B4A3223D5C64600E1F16A /* DF.cpp in Sources */,
 				8F3E9490236A8A7C00077CE6 /* Sequencer.c in Sources */,
 				8F3EE70E2355AEFD004BB9BB /* IP.cpp in Sources */,
 				8F2113DE23288B76001CF34C /* main.cpp in Sources */,

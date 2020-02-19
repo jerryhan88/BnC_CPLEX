@@ -130,6 +130,62 @@ public:
         }
         return prob;
     }
+    
+    static Problem* read_json_DF(std::string ifpath) {
+        std::ifstream is(ifpath);
+        nlohmann::json prob_json;
+        is >> prob_json;
+        is.close();
+        //
+        Problem *prob = new Problem();
+        prob->problemName = prob_json["problemName"];
+        for (int k: prob_json["K"]) {
+            prob->K.push_back(k);
+        }
+        for (int i: prob_json["PD"]) {
+            prob->PD.push_back(i);
+        }
+        for (int i: prob_json["N"]) {
+            prob->N.push_back(i);
+        }
+        for (int i: prob_json["S"]) {
+            prob->S.insert(i);
+            prob->_S.push_back(i);
+        }
+        for (int i: prob_json["P"]) {
+            prob->P.insert(i);
+        }
+        std::vector<int> _D;
+        for (int i: prob_json["D"]) {
+            prob->D.insert(i);
+            _D.push_back(i);
+        }
+        prob->o = prob_json["o"];
+        prob->d = prob_json["d"];
+        prob->h_k = new int[prob->K.size()];
+        prob->n_k = new int[prob->K.size()];
+        for (int k: prob->K) {
+            prob->h_k[k] = prob_json["h_k"][k];
+            prob->n_k[k] = prob_json["n_k"][k];
+        }
+        size_t numNodes = prob_json["t_ij"][0].size();
+        prob->t_ij = new double*[numNodes];
+        for (int i = 0; i < numNodes; i++) {
+            prob->t_ij[i] = new double[numNodes];
+        }
+        prob->al_i = new double[numNodes];
+        prob->be_i = new double[numNodes];
+        for (int i: prob->N) {
+            prob->al_i[i] = prob_json["al_i"][i];
+            prob->be_i[i] = prob_json["be_i"][i];
+            assert(0 <= prob->be_i[i]);
+            for (int j: prob->N) {
+                prob->t_ij[i][j] = prob_json["t_ij"][i][j];
+            }
+        }
+        prob->M = prob_json["M"];
+        return prob;
+    }
 };
 
 #endif /* Problem_hpp */

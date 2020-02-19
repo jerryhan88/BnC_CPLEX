@@ -15,6 +15,7 @@
 #include "Problem.hpp"
 #include "Etc.hpp"
 #include "MathematicalModel/BaseMM.hpp"
+#include "MathematicalModel/DF.hpp"
 #include "GH/IH.hpp"
 
 
@@ -56,7 +57,6 @@ std::vector<std::string> parseWithDelimiter(std::string str, std::string delimit
     }
     tokens.push_back(str);
     return tokens;
-    
 }
 
 std::vector<std::string> read_directory(const std::string &d_path, const std::string &extension) {
@@ -103,6 +103,22 @@ void write_solution(Problem *prob, FilePathOrganizer &fpo, TimeTracker &tt, Base
     fout_csv << row << "\n";
     fout_csv.close();
 }
+
+void write_solution(Problem *prob, FilePathOrganizer &fpo, TimeTracker &tt, DF *mm) {
+    char row[DEFAULT_BUFFER_SIZE];
+    std::fstream fout_csv;
+    fout_csv.open(fpo.solPathCSV, std::ios::out);
+    fout_csv << "objV,Gap,eliCpuTime,eliWallTime,notes" << "\n";
+    sprintf(row,
+            "%f,%f,%f,%f",
+            mm->cplex->getObjValue(),
+            mm->cplex->getMIPRelativeGap(),
+            tt.get_elipsedTimeCPU(),
+            tt.get_elipsedTimeWall());
+    fout_csv << row << "\n";
+    fout_csv.close();
+}
+
 
 void write_solution(Problem* prob, FilePathOrganizer& fpo, TimeTracker& tt,
                     double objV, double gap, long long int numNodes, int numGenCuts, double time4Sep) {
@@ -206,7 +222,12 @@ int main(int argc, const char * argv[]) {
     std::vector<std::string> probFileNames = read_directory(prob_dpath, ".json");
     for (std::string fn: probFileNames) {
         std::string prob_fpath(prob_dpath + "/" + fn);
-        Problem *prob = Problem::read_json(prob_fpath);
+        Problem *prob;
+        if (appr_name_base != "DF") {
+            prob = Problem::read_json(prob_fpath);
+        } else {
+            prob = Problem::read_json_DF(prob_fpath);
+        }
         std::string postfix = prob->problemName;
         FilePathOrganizer fpo(appr_dpath, postfix);
         if (!enforcementMode) {
@@ -242,6 +263,42 @@ int main(int argc, const char * argv[]) {
             double time4Sep = -1.0;
             write_solution(prob, fpo, tt, objV, gap, numNodes, numGenCuts, time4Sep);
             write_visitingSeq_arrivalTime(prob, fpo, gh.x_ij, gh.u_i);
+        } else if (appr_name_base == "DF"){
+            DF* mm;
+            mm = new DF(prob, fpo.logPath);
+            if (hasOption(arguments, "-t")) {
+                int timeLimitSec = std::stoi(valueOf(arguments, "-t"));
+                mm->cplex->setParam(IloCplex::TiLim, timeLimitSec);
+            }
+            mm->cplex->solve();
+            if (mm->cplex->getStatus() == IloAlgorithm::Infeasible) {
+                mm->cplex->exportModel(fpo.lpPath.c_str());
+                continue;
+            }
+            try {
+                write_solution(prob, fpo, tt, mm);
+                //
+                double **x_ij = new double *[(*prob).N.size()];
+                double *u_i = new double[(*prob).N.size()];
+                for (int i: (*prob).N) {
+                    x_ij[i] = new double[(*prob).N.size()];
+                }
+                mm->get_x_ij(x_ij);
+                mm->get_u_i(u_i);
+                write_visitingSeq_arrivalTime(prob, fpo, x_ij, u_i);
+                for (int i: (*prob).N) {
+                    delete [] x_ij[i];
+                }
+                delete [] x_ij;
+                delete [] u_i;
+            } catch (IloCplex::Exception e) {
+                std::cout << "no incumbent until the time limit" << std::endl;
+                std::fstream fout;
+                fout.open(fpo.lpPath, std::ios::out);
+                fout << "\t No incumbent until the time limit, " << std::stoi(valueOf(arguments, "-t")) << "seconds" << "\n";
+                fout.close();
+            }
+            delete mm;
         } else {
             BaseMM* mm;
             if (appr_name_base == "LP" || appr_name_base == "ILP") {
