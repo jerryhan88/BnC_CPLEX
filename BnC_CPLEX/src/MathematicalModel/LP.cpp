@@ -6,13 +6,13 @@
 //  Copyright © 2019 Chung-Kyun HAN. All rights reserved.
 //
 
-#include "BaseMM.hpp"
+#include "../../include/ck_route/RouteMM.hpp"
 
-LP::LP(Problem *prob, std::string logPath, bool isTightenModel) : BaseMM(prob, logPath, 'L', isTightenModel) {
+rmm::LP::LP(rut::Problem *prob, std::string logPath, bool isTightenModel) : RouteMM(prob, logPath, 'L', isTightenModel) {
     logStream = new std::ofstream (logPath.c_str(), std::ios_base::app);
     cplex->setOut(*logStream);
 }
 
-LP::~LP() {
+rmm::LP::~LP() {
     delete logStream;
 }

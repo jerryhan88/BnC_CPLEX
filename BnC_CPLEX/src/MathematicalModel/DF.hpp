@@ -13,14 +13,15 @@
 
 #include <ilcplex/ilocplex.h>
 
-#include "../Problem.hpp"
-#include "../Etc.hpp"
+#include "../../include/ck_route/Problem.hpp"
+
 
 #define BUFFER_SIZE 2048   // same as DEFAULT_BUFFER_SIZE in BaseMM.hpp
 
+
 class DF {
 public:
-    Problem* prob;
+    rut::Problem* prob;
     std::string logPath;
     IloEnv env;
     IloCplex* cplex;
@@ -28,7 +29,7 @@ public:
     IloNumVar** x_ij;
     IloNumVar* u_i;
     //
-    DF(Problem *prob, std::string logPath);
+    DF(rut::Problem *prob, std::string logPath);
     ~DF();
     void get_x_ij(double** _x_ij);
     void get_x_ij(IloArray<IloNumArray>& _x_ij);

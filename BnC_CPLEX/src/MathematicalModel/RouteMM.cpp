@@ -1,52 +1,15 @@
 //
-//  BaseMM.cpp
+//  RouteMM.cpp
 //  BnC_CPLEX
 //
-//  Created by Chung-Kyun HAN on 27/9/19.
-//  Copyright © 2019 Chung-Kyun HAN. All rights reserved.
+//  Created by Chung-Kyun HAN on 1/3/20.
+//  Copyright © 2020 Chung-Kyun HAN. All rights reserved.
 //
 
-#include "BaseMM.hpp"
+#include "../../include/ck_route/RouteMM.hpp"
 
 
-
-void BaseMM::build_baseModel() {
-    def_FC_cnsts();
-    def_AT_cnsts();
-    def_CP_cnsts();
-    def_objF();
-//    def_temp();
-}
-
-BaseMM::BaseMM(Problem *prob, std::string logPath, char xType, bool isTightenModel) {
-    this->prob = prob;
-    this->logPath = logPath;
-    x_ij = new IloNumVar*[(*prob).N.size()];
-    for (int i: (*prob).N) {
-        x_ij[i] = new IloNumVar[(*prob).N.size()];
-    }
-    u_i = new IloNumVar[(*prob).N.size()];
-    cplexModel = new IloModel(env);
-    //
-    def_dvs(xType);
-    build_baseModel();
-    if (isTightenModel) {
-        def_Ti_cnsts();
-    }
-    //
-    cplex = new IloCplex(*cplexModel);
-}
-
-BaseMM::~BaseMM() {
-    for (int i = 0; i < (*prob).N.size(); i++)
-        delete [] x_ij[i];
-    delete [] x_ij;
-    delete [] u_i;
-    delete cplexModel;
-    env.end();
-}
-
-void BaseMM::get_x_ij(double **_x_ij) {
+void rmm::RouteMM::get_x_ij(double **_x_ij) {
     for (int i: (*prob).N) {
         for (int j: (*prob).N) {
             _x_ij[i][j] = cplex->getValue(x_ij[i][j]);
@@ -54,14 +17,21 @@ void BaseMM::get_x_ij(double **_x_ij) {
     }
 }
 
-void BaseMM::get_u_i(double *_u_i) {
+void rmm::RouteMM::get_u_i(double *_u_i) {
     for (int i: (*prob).N) {
         _u_i[i] = cplex->getValue(u_i[i]);
     }
 }
 
+void rmm::RouteMM::build_baseModel() {
+    def_FC_cnsts();
+    def_AT_cnsts();
+    def_CP_cnsts();
+    def_objF();
+//    def_temp();
+}
 
-void BaseMM::start_fromGHSol(double** _x_ij, double* _u_i) {
+void rmm::RouteMM::set_initSol(double** _x_ij, double* _u_i) {
     IloNumVarArray startVar(env);
     IloNumArray startVal(env);
     for (int i: (*prob).N) {
@@ -80,15 +50,12 @@ void BaseMM::start_fromGHSol(double** _x_ij, double* _u_i) {
     startVar.end();
 }
 
-std::vector<CutBase*> BaseMM::get_cutInstances(std::vector<std::string> cut_names, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd) {
+std::vector<CutBase*> rmm::RouteMM::get_cutInstances(std::vector<std::string> cut_names, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd) {
     std::vector<CutBase*> cuts;
     for (std::string cut_name: cut_names) {
         std::string cutType = cut_name.substr(1);
         if (cutType == "SE") {
             cuts.push_back(new SE_cut(cut_name, cutManagerType, isLocalCutAdd));
-        } else if (cutType == "CO") {
-            assert(false);
-//            cuts.push_back(new Cover_cut(cut_name, turnOnCutManager, isLocalCutAdd));
         } else if (cutType == "CA") {
             cuts.push_back(new CA_cut(cut_name, cutManagerType, isLocalCutAdd));
         } else if (cutType == "RS") {
@@ -102,7 +69,7 @@ std::vector<CutBase*> BaseMM::get_cutInstances(std::vector<std::string> cut_name
     return cuts;
 }
 
-void BaseMM::def_FC_cnsts() {
+void rmm::RouteMM::def_FC_cnsts() {
     char buf[DEFAULT_BUFFER_SIZE];
     IloRangeArray cnsts(env);
     IloExpr linExpr(env);
@@ -123,7 +90,7 @@ void BaseMM::def_FC_cnsts() {
     cnsts.add(linExpr == 1);
     cnsts[cnsts.getSize() - 1].setName(buf);
     //
-    for (int i: (*prob).S) {
+    for (int i: (*prob).R) {
         if (i == (*prob).o || i == (*prob).d)
             continue;
         linExpr.clear();
@@ -148,12 +115,12 @@ void BaseMM::def_FC_cnsts() {
     }
     //
     linExpr.clear();
-    sprintf(buf, "DO");
+    sprintf(buf, "CF");  // Circular Flow for the branch-and-cut algorithm
     cnsts.add(x_ij[(*prob).d][(*prob).o] == 1);
     cnsts[cnsts.getSize() - 1].setName(buf);
     //
     linExpr.clear();
-    sprintf(buf, "xF");
+    sprintf(buf, "NS");  // No Self Flow; tightening bounds
     for (int i: (*prob).N) {
         linExpr += x_ij[i][i];
     }
@@ -194,7 +161,7 @@ void BaseMM::def_FC_cnsts() {
     cplexModel->add(cnsts);
 }
 
-void BaseMM::def_AT_cnsts() {
+void rmm::RouteMM::def_AT_cnsts() {
     char buf[DEFAULT_BUFFER_SIZE];
     IloRangeArray cnsts(env);
     IloExpr linExpr(env);
@@ -239,8 +206,8 @@ void BaseMM::def_AT_cnsts() {
         cnsts[cnsts.getSize() - 1].setName(buf);
     }
     //
-    for (int i: (*prob).S) {
-        for (int j: (*prob).S) {
+    for (int i: (*prob).R) {
+        for (int j: (*prob).R) {
             linExpr.clear();
             sprintf(buf, "RR_P(%d,%d)", i, j);
             linExpr += (*prob).c_ij[i][j] * u_i[i];
@@ -254,13 +221,13 @@ void BaseMM::def_AT_cnsts() {
     cplexModel->add(cnsts);
 }
 
-void BaseMM::def_CP_cnsts() {
+void rmm::RouteMM::def_CP_cnsts() {
     char buf[DEFAULT_BUFFER_SIZE];
     IloRangeArray cnsts(env);
     IloExpr linExpr(env);
     //
     linExpr.clear();
-    sprintf(buf, "bv");
+    sprintf(buf, "VL");  // Volume Limit
     for (int k: (*prob).K) {
         for (int j: (*prob).N) {
             linExpr += (*prob).v_k[k] * x_ij[j][(*prob).n_k[k]];
@@ -270,7 +237,7 @@ void BaseMM::def_CP_cnsts() {
     cnsts[cnsts.getSize() - 1].setName(buf);
     //
     linExpr.clear();
-    sprintf(buf, "bw");
+    sprintf(buf, "WL");  // Weight Limit
     for (int k: (*prob).K) {
         for (int j: (*prob).N) {
             linExpr += (*prob).w_k[k] * x_ij[j][(*prob).n_k[k]];
@@ -280,7 +247,7 @@ void BaseMM::def_CP_cnsts() {
     cnsts[cnsts.getSize() - 1].setName(buf);
     //
     linExpr.clear();
-    sprintf(buf, "DT");
+    sprintf(buf, "TL");  // Time Limit
     for (int i: (*prob).N) {
         for (int j: (*prob).N) {
             if (i == (*prob).d && j == (*prob).o)
@@ -295,7 +262,7 @@ void BaseMM::def_CP_cnsts() {
     cplexModel->add(cnsts);
 }
 
-void BaseMM::def_objF() {
+void rmm::RouteMM::def_objF() {
     IloExpr objF(env);
     for (int k: (*prob).K) {
         for (int j: (*prob).N) {
@@ -306,7 +273,7 @@ void BaseMM::def_objF() {
     objF.end();
 }
 
-void BaseMM::def_Ti_cnsts() {
+void rmm::RouteMM::def_Ti_cnsts() {
     char buf[DEFAULT_BUFFER_SIZE];
     IloRangeArray cnsts(env);
     IloExpr linExpr(env);
@@ -332,7 +299,7 @@ void BaseMM::def_Ti_cnsts() {
     cplexModel->add(cnsts);
 }
 
-void BaseMM::def_temp() {
+void rmm::RouteMM::def_temp() {
     IloRangeArray cnsts(env);
     IloExpr linExpr(env);
     //
@@ -346,19 +313,4 @@ void BaseMM::def_temp() {
     //
     linExpr.end();
     cplexModel->add(cnsts);
-}
-
-void BaseMM::def_dvs(char xType) {
-    char buf[DEFAULT_BUFFER_SIZE];
-    IloNumVar::Type ilo_var_type = xType == 'I' ? ILOINT : ILOFLOAT;
-    for (int i: (*prob).N) {
-        for (int j: (*prob).N) {
-            sprintf(buf, "x(%d)(%d)", i, j);
-            x_ij[i][j] = IloNumVar(env, 0.0, 1.0, ilo_var_type, buf);
-        }
-    }
-    for (int i: (*prob).N) {
-        sprintf(buf, "u(%d)", i);
-        u_i[i] = IloNumVar(env, 0.0, DBL_MAX, ILOFLOAT, buf);
-    }
 }

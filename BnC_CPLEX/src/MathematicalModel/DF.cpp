@@ -15,7 +15,7 @@ void DF::build_baseModel() {
     def_objF();
 }
 
-DF::DF(Problem *prob, std::string logPath) {
+DF::DF(rut::Problem *prob, std::string logPath) {
     this->prob = prob;
     this->logPath = logPath;
     x_ij = new IloNumVar*[(*prob).N.size()];

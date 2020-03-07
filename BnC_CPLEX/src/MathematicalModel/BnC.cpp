@@ -6,11 +6,11 @@
 //  Copyright © 2019 Chung-Kyun HAN. All rights reserved.
 //
 
-#include "BaseMM.hpp"
-#include "../Cuts/Base.hpp"
+#include "../../include/ck_route/RouteMM.hpp"
+#include "../../include/ck_route/CutBase.hpp"
 
 
-BnC::BnC(Problem* prob, std::string logPath, std::vector<std::string> cut_names, bool isTightenModel, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd, TimeTracker* tt) : BaseMM(prob, logPath, 'I', isTightenModel) {
+rmm::BnC::BnC(rut::Problem* prob, std::string logPath, std::vector<std::string> cut_names, bool isTightenModel, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd, TimeTracker* tt) : RouteMM(prob, logPath, 'I', isTightenModel) {
     std::vector<CutBase*> cuts = get_cutInstances(cut_names, cutManagerType, isLocalCutAdd);
     cc = new CutComposer(prob, cuts, env, x_ij, logPath, tt);
     CPXLONG contextMask = 0;
@@ -30,18 +30,24 @@ BnC::BnC(Problem* prob, std::string logPath, std::vector<std::string> cut_names,
     }
 }
 
-int BnC::getNumGenCuts() {
+int rmm::BnC::getNumGenCuts() {
     return cc->numGenCuts;
 }
 
-double BnC::getTime4Sep() {
+double rmm::BnC::getTime4Sep() {
     return cc->time4Sep;
 }
 
-double BnC::getTime4FDV() {
+double rmm::BnC::getTime4FDV() {
     return cc->time4FDV;
 }
 
-int BnC::getNum4Sep() {
+int rmm::BnC::getNum4Sep() {
     return cc->num4Sep;
+}
+
+void rmm::BnC::add_detectedCuts2MM() {
+    for (CutBase *c: cc->cuts) {
+        cplexModel->add(c->get_detectedCuts(cc));
+    }
 }

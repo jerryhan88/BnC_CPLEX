@@ -1,20 +1,20 @@
 //
-//  Base.cpp
+//  CutBase.cpp
 //  BnC_CPLEX
 //
-//  Created by Chung-Kyun HAN on 13/9/19.
-//  Copyright © 2019 Chung-Kyun HAN. All rights reserved.
+//  Created by Chung-Kyun HAN on 1/3/20.
+//  Copyright © 2020 Chung-Kyun HAN. All rights reserved.
 //
 
-#include "Base.hpp"
+#include "../../include/ck_route/CutBase.hpp"
+
 #include <random>
 
-
-std::mutex mtx;
+std::mutex cut_mtx;
 
 #define REL_VALS_LIMIT 32
 
-int getNextNodeByFlow(int n0, CutComposer* cc, const IloCplex::Callback::Context& context) {
+int getNextNodeByFlow(int n0, CutComposer *cc, const IloCplex::Callback::Context &context) {
     int n1 = -1;
     double max_OEV = -1.0;
     for (int i = 0; i < cc->prob->N.size(); i++) {
@@ -37,7 +37,7 @@ void CutBase::addUserCutwCust(const IloCplex::Callback::Context &context, IloExp
     context.addUserCut(lhs_expr <= 0, cutManagerType, isLocalCutAdd);
 }
 
-CutComposer::CutComposer(Problem *prob, std::vector<CutBase*> &cuts, IloEnv &env, IloNumVar **x_ij, std::string logPath, TimeTracker* tt) {
+CutComposer::CutComposer(rut::Problem *prob, std::vector<CutBase*> &cuts, IloEnv &env, IloNumVar **x_ij, std::string logPath, TimeTracker* tt) {
     this->prob = prob;
     for (CutBase *c: cuts) {
         this->cuts.push_back(c);
@@ -55,7 +55,7 @@ CutComposer::CutComposer(Problem *prob, std::vector<CutBase*> &cuts, IloEnv &env
 
 void CutComposer::invoke (const IloCplex::Callback::Context &context) {
     if ( context.inRelaxation() ) {
-        mtx.lock();
+        cut_mtx.lock();
         //
         double relaxedVal = context.getRelaxationObjective();
         double objbst = context.getIncumbentObjective();
@@ -80,13 +80,13 @@ void CutComposer::invoke (const IloCplex::Callback::Context &context) {
 //                time4Sep += tt->get_elipsedTimeCPU() - timeRecored;
                 num4Sep += 1;
             } else {
-                double timeRecored = tt->get_elipsedTimeCPU();
+                double timeRecored = tt->get_elapsedTimeCPU();
                 std::vector<std::string> violatedCnsts;
                 for (CutBase *c: cuts) {
                     std::string cnsts = c->add_cut_wLogging(this, context);
                     violatedCnsts.push_back(cnsts);
                 }
-                time4Sep += tt->get_elipsedTimeCPU() - timeRecored;
+                time4Sep += tt->get_elapsedTimeCPU() - timeRecored;
                 num4Sep += 1;
                 //
                 long nodecnt = context.getLongInfo(IloCplex::Callback::Context::Info::NodeCount);
@@ -108,6 +108,6 @@ void CutComposer::invoke (const IloCplex::Callback::Context &context) {
             }
         }
         //
-        mtx.unlock();
+        cut_mtx.unlock();
     }
 }

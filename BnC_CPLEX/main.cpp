@@ -8,73 +8,26 @@
 
 #include <iostream>
 #include <fstream>
-
 #include <sys/types.h>
 #include <dirent.h>
 
-#include "Problem.hpp"
-#include "Etc.hpp"
-#include "MathematicalModel/BaseMM.hpp"
-#include "MathematicalModel/DF.hpp"
-#include "GH/IH.hpp"
-
+#include "include/ck_route/Problem.hpp"
+#include "include/ck_route/RouteMM.hpp"
+#include "src/MathematicalModel/DF.hpp"
+#include "src/GH/IH.hpp"
+//
+#include "ck_util/util.hpp"
 
 #define DEFAULT_BUFFER_SIZE 2048
+
+using namespace rmm;
 
 template<typename Base, typename T>
 inline bool instanceof(const T*) {
    return std::is_base_of<Base, T>::value;
 }
 
-bool hasOption(std::vector<std::string> &arguments, std::string option) {
-    bool hasValue = false;
-    for (std::string str: arguments) {
-        if (str == option) {
-            hasValue = true;
-        }
-    }
-    return hasValue;
-}
-
-std::string valueOf(std::vector<std::string> &arguments, std::string option) {
-    std::string value = "";
-    for (int i = 0; i < arguments.size(); i++) {
-        if (arguments[i] == option) {
-            value = arguments[i + 1];
-        }
-    }
-    return value;
-}
-
-std::vector<std::string> parseWithDelimiter(std::string str, std::string delimiter) {
-    std::vector<std::string> tokens;
-    size_t pos = 0;
-    std::string token;
-    while ((pos = str.find(delimiter)) != std::string::npos) {
-        token = str.substr(0, pos);
-        tokens.push_back(token);
-        str.erase(0, pos + delimiter.length());
-    }
-    tokens.push_back(str);
-    return tokens;
-}
-
-std::vector<std::string> read_directory(const std::string &d_path, const std::string &extension) {
-    std::vector<std::string> fileNames;
-    DIR* dirp = opendir(d_path.c_str());
-    struct dirent * dp;
-    while ((dp = readdir(dirp)) != NULL) {
-        std::string fn(dp->d_name);
-        std::size_t found = fn.find(extension);
-        if (found!=std::string::npos)
-            fileNames.push_back(fn);
-    }
-    closedir(dirp);
-    std::sort(fileNames.begin(), fileNames.end());
-    return fileNames;
-}
-
-void write_solution(Problem *prob, FilePathOrganizer &fpo, TimeTracker &tt, BaseMM *mm) {
+void write_solution(Problem *prob, FilePathOrganizer &fpo, TimeTracker &tt, RouteMM *mm) {
     char row[DEFAULT_BUFFER_SIZE];
     std::fstream fout_csv;
     fout_csv.open(fpo.solPathCSV, std::ios::out);
@@ -83,8 +36,8 @@ void write_solution(Problem *prob, FilePathOrganizer &fpo, TimeTracker &tt, Base
         fout_csv << "objV,eliCpuTime,eliWallTime" << "\n";
         sprintf(row, "%f,%f,%f,\"{numRows: %ld,numCols: %ld}\"",
                 mm->cplex->getObjValue(),
-                tt.get_elipsedTimeCPU(),
-                tt.get_elipsedTimeWall(),
+                tt.get_elapsedTimeCPU(),
+                tt.get_elapsedTimeWall(),
                 mm->cplex->getNrows(),
                 mm->cplex->getNcols());
     } else {
@@ -92,8 +45,8 @@ void write_solution(Problem *prob, FilePathOrganizer &fpo, TimeTracker &tt, Base
                 "%f,%f,%f,%f,\"{\'numNodes\': %lld, \'numGenCuts\': %d, \'time4Sep\': %f,\'time4FDV\': %f, \'num4Sep\': %d}\"",
                 mm->cplex->getObjValue(),
                 mm->cplex->getMIPRelativeGap(),
-                tt.get_elipsedTimeCPU(),
-                tt.get_elipsedTimeWall(),
+                tt.get_elapsedTimeCPU(),
+                tt.get_elapsedTimeWall(),
                 mm->cplex->getNnodes64(),
                 mm->getNumGenCuts(),
                 mm->getTime4Sep(),
@@ -113,8 +66,8 @@ void write_solution(Problem *prob, FilePathOrganizer &fpo, TimeTracker &tt, DF *
             "%f,%f,%f,%f",
             mm->cplex->getObjValue(),
             mm->cplex->getMIPRelativeGap(),
-            tt.get_elipsedTimeCPU(),
-            tt.get_elipsedTimeWall());
+            tt.get_elapsedTimeCPU(),
+            tt.get_elapsedTimeWall());
     fout_csv << row << "\n";
     fout_csv.close();
 }
@@ -129,8 +82,8 @@ void write_solution(Problem* prob, FilePathOrganizer& fpo, TimeTracker& tt,
     sprintf(row,
             "%f,%f,%f,%f,\"{numNodes: %lld, numGenCuts: %d, time4Sep: %f}\"",
             objV, gap,
-            tt.get_elipsedTimeCPU(),
-            tt.get_elipsedTimeWall(),
+            tt.get_elapsedTimeCPU(),
+            tt.get_elapsedTimeWall(),
             numNodes, numGenCuts, time4Sep);
     fout_csv << row << "\n";
     fout_csv.close();
@@ -168,28 +121,6 @@ void write_visitingSeq_arrivalTime(Problem* prob, FilePathOrganizer& fpo,
         fout_txt << i << ": " << u_i[i] << "\n";
     }
     fout_txt.close();
-//    fout_txt <<"\n";
-//
-//    for (int k: (*prob).K) {
-//        double r = 0.0;
-//        for (int j: (*prob).N) {
-//            r += (*prob).r_k[k] * x_ij[j][(*prob).n_k[k]];
-//        }
-//        if (r > 0.5) {
-//            fout_txt << k << "\n";
-//        }
-//    }
-//    fout_txt <<"\n";
-//
-//    for (int i: (*prob).N) {
-//        for (int j: (*prob).N) {
-//            if (x_ij[i][j] > 0.5) {
-//                fout_txt << "x[" << i << "][" << j << "]:" << x_ij[i][j];
-//                fout_txt << "(" << (*prob).t_ij[i][j] << ")" << "\n";
-//            }
-//        }
-//    }
-//    fout_txt <<"\n";
 }
 
 int main(int argc, const char * argv[]) {
@@ -300,7 +231,7 @@ int main(int argc, const char * argv[]) {
             }
             delete mm;
         } else {
-            BaseMM* mm;
+            RouteMM* mm;
             if (appr_name_base == "LP" || appr_name_base == "ILP") {
                 bool isTightenModel;
                 std::size_t pos = appr_name.find("-");
@@ -366,46 +297,8 @@ int main(int argc, const char * argv[]) {
                     write_visitingSeq_arrivalTime(prob, fpo, gh.x_ij, gh.u_i);
                     continue;
                 }
-                mm->start_fromGHSol(gh.x_ij, gh.u_i);
+                mm->set_initSol(gh.x_ij, gh.u_i);
             }
-            
-//            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::VariableSelect, 3);
-            
-//            mm->cplex->setParam(IloCplex::Param::Threads, 1);
-            
-//            mm->cplex->setParam(IloCplex::Param::RootAlgorithm, 1);
-//            mm->cplex->setParam(IloCplex::Param::NodeAlgorithm, 1);
-//
-//            mm->cplex->setParam(IloCplex::Param::MIP::Display, 5);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Interval, 1);
-//
-//            mm->cplex->setParam(IloCplex::Param::MIP::SubMIP::Scale, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::SubMIP::NodeLimit, 1);
-
-//            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::Probe, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::PresolveNode, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::HeuristicFreq, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::FPHeur, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::RINSHeur, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::LBHeur, false);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Strategy::Search, 1);
-//
-//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::BQP, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::Cliques, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::Covers, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::Disjunctive, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::FlowCovers, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::PathCut, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::Gomory, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::GUBCovers, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::Implied, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::LocalImplied, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::LiftProj, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::MIRCut, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::MCFCut, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::RLT, -1);
-//            mm->cplex->setParam(IloCplex::Param::MIP::Cuts::ZeroHalfCut, -1);
-
             mm->cplex->solve();
             if (mm->cplex->getStatus() == IloAlgorithm::Infeasible) {
                 mm->cplex->exportModel(fpo.lpPath.c_str());

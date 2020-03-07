@@ -15,7 +15,7 @@
 #include <vector>
 #include <cfloat>
 
-#include "../Problem.hpp"
+#include "../../include/ck_route/Problem.hpp"
 #include "Sequencer.h"
 //extern "C" {
 //    #include "Sequencer.h"
@@ -23,6 +23,7 @@
 
 typedef std::pair< int, std::vector<int> > tid_bestSeq;
 
+using namespace rut;
 
 class InsertionHeuristic {
 public:

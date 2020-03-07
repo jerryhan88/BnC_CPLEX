@@ -32,7 +32,7 @@ InsertionHeuristic::InsertionHeuristic(Problem* prob, std::string logPath) {
     curWei = 0.0;
     //
     candiTasks.insert((*prob).K.begin(), (*prob).K.end());
-    partialSeq.insert(partialSeq.end(), (*prob)._S.begin(), (*prob)._S.end());
+    partialSeq.insert(partialSeq.end(), (*prob)._R.begin(), (*prob)._R.end());
     seqBeginIndex4Search = 1;
 }
 

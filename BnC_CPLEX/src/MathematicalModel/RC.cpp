@@ -6,10 +6,10 @@
 //  Copyright © 2019 Chung-Kyun HAN. All rights reserved.
 //
 
-#include "BaseMM.hpp"
-#include "../Cuts/Base.hpp"
+#include "../../include/ck_route/RouteMM.hpp"
+#include "../../include/ck_route/CutBase.hpp"
 
-RC::RC(Problem* prob, std::string logPath, std::vector<std::string> cut_names) : BaseMM(prob, logPath, 'L', true) {
+rmm::RC::RC(rut::Problem* prob, std::string logPath, std::vector<std::string> cut_names) : RouteMM(prob, logPath, 'L', true) {
     std::vector<CutBase*> cuts = get_cutInstances(cut_names, IloCplex::UseCutForce, IloFalse);
     cc = new CutComposer(prob, cuts, env, x_ij, logPath, nullptr);
     //
@@ -26,7 +26,7 @@ RC::RC(Problem* prob, std::string logPath, std::vector<std::string> cut_names) :
     }
 }
 
-void RC::solve() {
+void rmm::RC::solve() {
     double** _x_ij = new double *[(*prob).N.size()];
     double* _u_i = new double[(*prob).N.size()];
     for (int i: (*prob).N) {

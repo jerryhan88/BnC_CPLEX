@@ -6,7 +6,7 @@
 //  Copyright © 2019 Chung-Kyun HAN. All rights reserved.
 //
 
-#include "BaseMM.hpp"
+#include "../../include/ck_route/RouteMM.hpp"
 
 
 ILOMIPINFOCALLBACK1(BnBLogger,
@@ -25,7 +25,7 @@ ILOMIPINFOCALLBACK1(BnBLogger,
     appendRow(logPath, log);
 }
 
-ILP::ILP(Problem *prob, std::string logPath, bool isTightenModel) : BaseMM(prob, logPath, 'I', isTightenModel) {
+rmm::ILP::ILP(rut::Problem *prob, std::string logPath, bool isTightenModel) : RouteMM(prob, logPath, 'I', isTightenModel) {
     cplex->setOut(env.getNullStream());
     cplex->use(BnBLogger(env, logPath));
     if (logPath != "") {
