@@ -11,7 +11,7 @@ CPLEX_LN_FLAGS+=-framework IOKit
 CPLEX_LN_FLAGS+=-stdlib=libc++
 
 CPLEX_HOME:=/Applications/CPLEX_Studio128
-UTIL_DIR:=/Users/ckhan/workspace/util
+UTIL_HOME:=/Users/ckhan/workspace/util
 
 SRC_DIR:=./src
 BUILD_DIR:=./build
@@ -35,8 +35,8 @@ CONCERT_INC_DIR:=$(CONCERT_DIR)/include
 CONCERT_LIB_DIR:=$(CONCERT_DIR)/lib/$(SYSTEM)/$(LIB_FORMAT)
 
 UTIL_NAME:=util
-UTIL_INC_DIR:=$(UTIL_DIR)/include
-UTIL_LIB_DIR:=$(UTIL_DIR)/lib
+UTIL_INC_DIR:=$(UTIL_HOME)/include
+UTIL_LIB_DIR:=$(UTIL_HOME)/lib
 
 #####################################################################
 MAIN_CPP:=main.$(SRC_EXT)

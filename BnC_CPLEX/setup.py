@@ -39,7 +39,7 @@ CPLEX_HOME = None
 CPLEX_DIR, CPLEX_INC_DIR, CPLEX_LIB_DIR = None, None, None
 CONCERT_DIR, CONCERT_INC_DIR, CONCERT_LIB_DIR = None, None, None
 
-UTIL_DIR = None
+UTIL_HOME = None
 UTIL_INC_DIR, UTIL_LIB_DIR = None, None
 
 ###############################################################
@@ -103,18 +103,18 @@ def set_paths():
 	CONCERT_LIB_DIR = reduce(opath.join, 
 							[CONCERT_DIR, 'lib', SYSTEM, LIB_FORMAT])
 	#
-	global UTIL_DIR
+	global UTIL_HOME
 	global UTIL_INC_DIR, UTIL_LIB_DIR
 	if hasFlag('-ut'):
-		UTIL_DIR = valueOf('-ut')
+		UTIL_HOME = valueOf('-ut')
 	else:
 		if platform.system() == 'Darwin':
-			UTIL_DIR = '/Users/ckhan/workspace/util'
+			UTIL_HOME = '/Users/ckhan/workspace/util'
 		else:
-			print('Please a path directing UTIL_DIR')
+			print('Please a path directing UTIL_HOME')
 			assert False
-	UTIL_INC_DIR = opath.join(UTIL_DIR, 'include')
-	UTIL_LIB_DIR = opath.join(UTIL_DIR, 'lib')
+	UTIL_INC_DIR = opath.join(UTIL_HOME, 'include')
+	UTIL_LIB_DIR = opath.join(UTIL_HOME, 'lib')
 	#
 
 def set_flags():
