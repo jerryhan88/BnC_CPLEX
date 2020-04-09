@@ -6,10 +6,11 @@
 //  Copyright © 2019 Chung-Kyun HAN. All rights reserved.
 //
 
-#ifndef rut_Problem_hpp
-#define rut_Problem_hpp
+#ifndef rut_Other_hpp
+#define rut_Other_hpp
 
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <set>
@@ -203,8 +204,45 @@ public:
     }
 };
 
+class Solution {
+    public:
+    rut::Problem *prob;
+    //
+    double objV, gap;
+    double cpuT, wallT;
+    std::string note;
+    //
+    double **x_ij, *u_i;
+    //
+    Solution(rut::Problem *prob) {
+        this->prob = prob;
+        //
+        x_ij = new double*[prob->N.size()];
+        u_i = new double[prob->N.size()];
+        for (int i: prob->N) {
+            x_ij[i] = new double[prob->N.size()];
+            for (int j: prob->N) {
+                x_ij[i][j] = 0.0;
+            }
+            u_i[i] = 0.0;
+        }
+    }
+    ~Solution() {
+        for (int i: prob->N) {
+            delete [] x_ij[i];
+        }
+        delete [] x_ij;
+        delete [] u_i;
+    }
+    //
+    void writeSolCSV(std::string solPathCSV);
+    void writeSolTXT(std::string solPathTXT);
+};
+
+
+
 }
 
 
 
-#endif /* Problem_hpp */
+#endif /* rut_Other_hpp */

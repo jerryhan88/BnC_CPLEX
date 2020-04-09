@@ -12,22 +12,18 @@
 		8F2113EA23288EA5001CF34C /* libcplex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F2113E723288EA5001CF34C /* libcplex.a */; };
 		8F2113EB23288EA5001CF34C /* libilocplex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F2113E823288EA5001CF34C /* libilocplex.a */; };
 		8F2113EC23288EA5001CF34C /* libcplexdistmip.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F2113E923288EA5001CF34C /* libcplexdistmip.a */; };
-		8F2113EF2328945F001CF34C /* Problem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F2113ED2328945F001CF34C /* Problem.cpp */; };
-		8F2113F623289AE3001CF34C /* Etc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F2113F423289AE3001CF34C /* Etc.cpp */; };
 		8F3B4A3223D5C64600E1F16A /* DF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F3B4A3023D5C64600E1F16A /* DF.cpp */; };
 		8F3E9490236A8A7C00077CE6 /* Sequencer.c in Sources */ = {isa = PBXBuildFile; fileRef = 8F3E948F236A8A7B00077CE6 /* Sequencer.c */; };
 		8F3EE70E2355AEFD004BB9BB /* IP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F3EE70D2355AEFD004BB9BB /* IP.cpp */; };
 		8F6CCDE423715C7A00F9CFB1 /* SE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F6CCDE323715C7A00F9CFB1 /* SE.cpp */; };
 		8F6CCDE623715ED800F9CFB1 /* CA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F6CCDE523715ED800F9CFB1 /* CA.cpp */; };
 		8F802BF523448CE5000D5AF1 /* RS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F802BF423448CE5000D5AF1 /* RS.cpp */; };
-		8FA1B1CA233E012400FF9F44 /* BaseMM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FA1B1C8233E012400FF9F44 /* BaseMM.cpp */; };
+		8F80EB14240BA94900EEB8F0 /* CutBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F80EB12240BA94900EEB8F0 /* CutBase.cpp */; };
+		8F80EB16240BAFC500EEB8F0 /* RouteMM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F80EB15240BAFC500EEB8F0 /* RouteMM.cpp */; };
 		8FA1B1CD233E050800FF9F44 /* ILP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FA1B1CB233E050800FF9F44 /* ILP.cpp */; };
-		8FA1B1D1233F1DD800FF9F44 /* LP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FA1B1CF233F1DD800FF9F44 /* LP.cpp */; };
-		8FA1B1D4233F565500FF9F44 /* BnC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FA1B1D2233F565500FF9F44 /* BnC.cpp */; };
 		8FA1B1D7233F567400FF9F44 /* RC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FA1B1D5233F567400FF9F44 /* RC.cpp */; };
-		8FD3B197232B346500FCDDEC /* Base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FD3B195232B346500FCDDEC /* Base.cpp */; };
-		8FD3B19E232B36B800FCDDEC /* Graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FD3B19C232B36B800FCDDEC /* Graph.cpp */; };
-		8FD3B1A1232B389C00FCDDEC /* FordFulkersonAlgo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FD3B19F232B389C00FCDDEC /* FordFulkersonAlgo.cpp */; };
+		8FDDA6AF243D9CB600AFF509 /* Solution.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FDDA6AD243D9CB600AFF509 /* Solution.cpp */; };
+		8FE2BC342409047B00BE2ADC /* libutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8FE2BC332409047B00BE2ADC /* libutil.a */; };
 		8FFBFBAD236A8727003151B9 /* IH.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FFBFBAB236A8727003151B9 /* IH.cpp */; };
 /* End PBXBuildFile section */
 
@@ -50,10 +46,7 @@
 		8F2113E723288EA5001CF34C /* libcplex.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcplex.a; path = "../../../../Applications/CPLEX_Studio128/cplex/lib/x86-64_osx/static_pic/libcplex.a"; sourceTree = "<group>"; };
 		8F2113E823288EA5001CF34C /* libilocplex.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libilocplex.a; path = "../../../../Applications/CPLEX_Studio128/cplex/lib/x86-64_osx/static_pic/libilocplex.a"; sourceTree = "<group>"; };
 		8F2113E923288EA5001CF34C /* libcplexdistmip.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcplexdistmip.a; path = "../../../../Applications/CPLEX_Studio128/cplex/lib/x86-64_osx/static_pic/libcplexdistmip.a"; sourceTree = "<group>"; };
-		8F2113ED2328945F001CF34C /* Problem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Problem.cpp; sourceTree = "<group>"; };
-		8F2113EE2328945F001CF34C /* Problem.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Problem.hpp; sourceTree = "<group>"; };
-		8F2113F423289AE3001CF34C /* Etc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Etc.cpp; sourceTree = "<group>"; };
-		8F2113F523289AE3001CF34C /* Etc.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Etc.hpp; sourceTree = "<group>"; };
+		8F2113EE2328945F001CF34C /* Other.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Other.hpp; sourceTree = "<group>"; };
 		8F3B4A3023D5C64600E1F16A /* DF.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DF.cpp; sourceTree = "<group>"; };
 		8F3B4A3123D5C64600E1F16A /* DF.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DF.hpp; sourceTree = "<group>"; };
 		8F3E948E236A8A7B00077CE6 /* Sequencer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Sequencer.h; sourceTree = "<group>"; };
@@ -62,20 +55,15 @@
 		8F6CCDE323715C7A00F9CFB1 /* SE.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SE.cpp; sourceTree = "<group>"; };
 		8F6CCDE523715ED800F9CFB1 /* CA.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CA.cpp; sourceTree = "<group>"; };
 		8F802BF423448CE5000D5AF1 /* RS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RS.cpp; sourceTree = "<group>"; };
-		8FA1B1C8233E012400FF9F44 /* BaseMM.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BaseMM.cpp; sourceTree = "<group>"; };
-		8FA1B1C9233E012400FF9F44 /* BaseMM.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BaseMM.hpp; sourceTree = "<group>"; };
+		8F80EB11240BA83000EEB8F0 /* Router.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Router.hpp; sourceTree = "<group>"; };
+		8F80EB12240BA94900EEB8F0 /* CutBase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CutBase.cpp; sourceTree = "<group>"; };
+		8F80EB13240BA94900EEB8F0 /* CutBase.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CutBase.hpp; sourceTree = "<group>"; };
+		8F80EB15240BAFC500EEB8F0 /* RouteMM.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RouteMM.cpp; sourceTree = "<group>"; };
 		8FA1B1CB233E050800FF9F44 /* ILP.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ILP.cpp; sourceTree = "<group>"; };
-		8FA1B1CF233F1DD800FF9F44 /* LP.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LP.cpp; sourceTree = "<group>"; };
-		8FA1B1D2233F565500FF9F44 /* BnC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BnC.cpp; sourceTree = "<group>"; };
 		8FA1B1D5233F567400FF9F44 /* RC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RC.cpp; sourceTree = "<group>"; };
-		8FD3B195232B346500FCDDEC /* Base.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Base.cpp; sourceTree = "<group>"; };
-		8FD3B196232B346500FCDDEC /* Base.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Base.hpp; sourceTree = "<group>"; };
-		8FD3B19C232B36B800FCDDEC /* Graph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Graph.cpp; sourceTree = "<group>"; };
-		8FD3B19D232B36B800FCDDEC /* Graph.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Graph.hpp; sourceTree = "<group>"; };
-		8FD3B19F232B389C00FCDDEC /* FordFulkersonAlgo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FordFulkersonAlgo.cpp; sourceTree = "<group>"; };
-		8FD3B1A0232B389C00FCDDEC /* FordFulkersonAlgo.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = FordFulkersonAlgo.hpp; sourceTree = "<group>"; };
+		8FDDA6AD243D9CB600AFF509 /* Solution.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Solution.cpp; sourceTree = "<group>"; };
+		8FE2BC332409047B00BE2ADC /* libutil.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libutil.a; path = ../util/lib/libutil.a; sourceTree = "<group>"; };
 		8FFBFBAB236A8727003151B9 /* IH.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IH.cpp; sourceTree = "<group>"; };
-		8FFBFBAC236A8727003151B9 /* IH.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IH.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8FE2BC342409047B00BE2ADC /* libutil.a in Frameworks */,
 				8F2113EA23288EA5001CF34C /* libcplex.a in Frameworks */,
 				8F2113EB23288EA5001CF34C /* libilocplex.a in Frameworks */,
 				8F2113EC23288EA5001CF34C /* libcplexdistmip.a in Frameworks */,
@@ -113,15 +102,9 @@
 		8F2113DC23288B76001CF34C /* BnC_CPLEX */ = {
 			isa = PBXGroup;
 			children = (
-				8FFBFBAA236A8544003151B9 /* GH */,
-				8FA1B1C7233E006800FF9F44 /* MathematicalModel */,
-				8FD3B19B232B363E00FCDDEC /* NetworkFlow */,
-				8FD3B194232B343100FCDDEC /* Cuts */,
+				8FE2BC362409086200BE2ADC /* include */,
+				8FCE114E2407862800C8CB07 /* src */,
 				8F2113DD23288B76001CF34C /* main.cpp */,
-				8F2113ED2328945F001CF34C /* Problem.cpp */,
-				8F2113EE2328945F001CF34C /* Problem.hpp */,
-				8F2113F423289AE3001CF34C /* Etc.cpp */,
-				8F2113F523289AE3001CF34C /* Etc.hpp */,
 			);
 			path = BnC_CPLEX;
 			sourceTree = "<group>";
@@ -129,6 +112,7 @@
 		8F2113E423288E94001CF34C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8FE2BC332409047B00BE2ADC /* libutil.a */,
 				8F2113E723288EA5001CF34C /* libcplex.a */,
 				8F2113E923288EA5001CF34C /* libcplexdistmip.a */,
 				8F2113E823288EA5001CF34C /* libilocplex.a */,
@@ -140,11 +124,8 @@
 		8FA1B1C7233E006800FF9F44 /* MathematicalModel */ = {
 			isa = PBXGroup;
 			children = (
-				8FA1B1C8233E012400FF9F44 /* BaseMM.cpp */,
-				8FA1B1C9233E012400FF9F44 /* BaseMM.hpp */,
+				8F80EB15240BAFC500EEB8F0 /* RouteMM.cpp */,
 				8FA1B1CB233E050800FF9F44 /* ILP.cpp */,
-				8FA1B1CF233F1DD800FF9F44 /* LP.cpp */,
-				8FA1B1D2233F565500FF9F44 /* BnC.cpp */,
 				8FA1B1D5233F567400FF9F44 /* RC.cpp */,
 				8F3B4A3023D5C64600E1F16A /* DF.cpp */,
 				8F3B4A3123D5C64600E1F16A /* DF.hpp */,
@@ -152,11 +133,21 @@
 			path = MathematicalModel;
 			sourceTree = "<group>";
 		};
+		8FCE114E2407862800C8CB07 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8FDDA6B0243D9F3000AFF509 /* Other */,
+				8FFBFBAA236A8544003151B9 /* GH */,
+				8FA1B1C7233E006800FF9F44 /* MathematicalModel */,
+				8FD3B194232B343100FCDDEC /* Cuts */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
 		8FD3B194232B343100FCDDEC /* Cuts */ = {
 			isa = PBXGroup;
 			children = (
-				8FD3B195232B346500FCDDEC /* Base.cpp */,
-				8FD3B196232B346500FCDDEC /* Base.hpp */,
+				8F80EB12240BA94900EEB8F0 /* CutBase.cpp */,
 				8F6CCDE323715C7A00F9CFB1 /* SE.cpp */,
 				8F6CCDE523715ED800F9CFB1 /* CA.cpp */,
 				8F802BF423448CE5000D5AF1 /* RS.cpp */,
@@ -165,23 +156,37 @@
 			path = Cuts;
 			sourceTree = "<group>";
 		};
-		8FD3B19B232B363E00FCDDEC /* NetworkFlow */ = {
+		8FDDA6B0243D9F3000AFF509 /* Other */ = {
 			isa = PBXGroup;
 			children = (
-				8FD3B19C232B36B800FCDDEC /* Graph.cpp */,
-				8FD3B19D232B36B800FCDDEC /* Graph.hpp */,
-				8FD3B19F232B389C00FCDDEC /* FordFulkersonAlgo.cpp */,
-				8FD3B1A0232B389C00FCDDEC /* FordFulkersonAlgo.hpp */,
+				8FDDA6AD243D9CB600AFF509 /* Solution.cpp */,
 			);
-			path = NetworkFlow;
+			path = Other;
+			sourceTree = "<group>";
+		};
+		8FE2BC362409086200BE2ADC /* include */ = {
+			isa = PBXGroup;
+			children = (
+				8FE2BC372409142E00BE2ADC /* ck_route */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		8FE2BC372409142E00BE2ADC /* ck_route */ = {
+			isa = PBXGroup;
+			children = (
+				8F2113EE2328945F001CF34C /* Other.hpp */,
+				8F80EB11240BA83000EEB8F0 /* Router.hpp */,
+				8F80EB13240BA94900EEB8F0 /* CutBase.hpp */,
+				8F3E948E236A8A7B00077CE6 /* Sequencer.h */,
+			);
+			path = ck_route;
 			sourceTree = "<group>";
 		};
 		8FFBFBAA236A8544003151B9 /* GH */ = {
 			isa = PBXGroup;
 			children = (
 				8FFBFBAB236A8727003151B9 /* IH.cpp */,
-				8FFBFBAC236A8727003151B9 /* IH.hpp */,
-				8F3E948E236A8A7B00077CE6 /* Sequencer.h */,
 				8F3E948F236A8A7B00077CE6 /* Sequencer.c */,
 			);
 			path = GH;
@@ -245,20 +250,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				8F802BF523448CE5000D5AF1 /* RS.cpp in Sources */,
-				8FA1B1D1233F1DD800FF9F44 /* LP.cpp in Sources */,
-				8FA1B1D4233F565500FF9F44 /* BnC.cpp in Sources */,
-				8F2113F623289AE3001CF34C /* Etc.cpp in Sources */,
-				8FD3B19E232B36B800FCDDEC /* Graph.cpp in Sources */,
 				8F3B4A3223D5C64600E1F16A /* DF.cpp in Sources */,
 				8F3E9490236A8A7C00077CE6 /* Sequencer.c in Sources */,
+				8F80EB14240BA94900EEB8F0 /* CutBase.cpp in Sources */,
+				8F80EB16240BAFC500EEB8F0 /* RouteMM.cpp in Sources */,
 				8F3EE70E2355AEFD004BB9BB /* IP.cpp in Sources */,
+				8FDDA6AF243D9CB600AFF509 /* Solution.cpp in Sources */,
 				8F2113DE23288B76001CF34C /* main.cpp in Sources */,
-				8FD3B1A1232B389C00FCDDEC /* FordFulkersonAlgo.cpp in Sources */,
-				8FA1B1CA233E012400FF9F44 /* BaseMM.cpp in Sources */,
-				8F2113EF2328945F001CF34C /* Problem.cpp in Sources */,
 				8FA1B1D7233F567400FF9F44 /* RC.cpp in Sources */,
 				8FFBFBAD236A8727003151B9 /* IH.cpp in Sources */,
-				8FD3B197232B346500FCDDEC /* Base.cpp in Sources */,
 				8F6CCDE623715ED800F9CFB1 /* CA.cpp in Sources */,
 				8F6CCDE423715C7A00F9CFB1 /* SE.cpp in Sources */,
 				8FA1B1CD233E050800FF9F44 /* ILP.cpp in Sources */,
@@ -390,11 +390,13 @@
 				HEADER_SEARCH_PATHS = (
 					/Applications/CPLEX_Studio128/cplex/include,
 					/Applications/CPLEX_Studio128/concert/include,
-					"/Users/ckhan/workspace/json-develop/single_include",
+					/Users/ckhan/workspace/util/include,
+					"/Users/ckhan/workspace/json-develop/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"/Applications/CPLEX_Studio128/concert/lib/x86-64_osx/static_pic",
 					"/Applications/CPLEX_Studio128/cplex/lib/x86-64_osx/static_pic",
+					/Users/ckhan/workspace/util/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -411,11 +413,13 @@
 				HEADER_SEARCH_PATHS = (
 					/Applications/CPLEX_Studio128/cplex/include,
 					/Applications/CPLEX_Studio128/concert/include,
-					"/Users/ckhan/workspace/json-develop/single_include",
+					/Users/ckhan/workspace/util/include,
+					"/Users/ckhan/workspace/json-develop/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"/Applications/CPLEX_Studio128/concert/lib/x86-64_osx/static_pic",
 					"/Applications/CPLEX_Studio128/cplex/lib/x86-64_osx/static_pic",
+					/Users/ckhan/workspace/util/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

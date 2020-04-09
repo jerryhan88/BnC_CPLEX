@@ -6,7 +6,7 @@
 //  Copyright © 2019 Chung-Kyun HAN. All rights reserved.
 //
 
-#include "../../include/ck_route/RouteMM.hpp"
+#include "../../include/ck_route/Router.hpp"
 
 
 ILOMIPINFOCALLBACK1(BnBLogger,
@@ -25,7 +25,7 @@ ILOMIPINFOCALLBACK1(BnBLogger,
     appendRow(logPath, log);
 }
 
-rmm::ILP::ILP(rut::Problem *prob, std::string logPath, bool isTightenModel) : RouteMM(prob, logPath, 'I', isTightenModel) {
+rmm::ILP::ILP(rut::Problem *prob, TimeTracker* tt, unsigned long time_limit_sec, std::string logPath, std::string lpPath, bool isTightenModel) : RouteMM(prob, tt, time_limit_sec, logPath, lpPath, 'I', isTightenModel) {
     cplex->setOut(env.getNullStream());
     cplex->use(BnBLogger(env, logPath));
     if (logPath != "") {

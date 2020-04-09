@@ -9,36 +9,43 @@
 #include "DF.hpp"
 
 
+rut::Solution* DF::solve() {
+    cplex->solve();
+    if (cplex->getStatus() == IloAlgorithm::Infeasible) {
+        cplex->exportModel(lpPath.c_str());
+        throw "Infeasible";
+    }
+    //
+    rut::Solution *sol = new rut::Solution(prob);
+    //
+    try {
+        sol->objV = cplex->getObjValue();
+        sol->gap = cplex->getMIPRelativeGap();
+        sol->cpuT = tt->get_elapsedTimeCPU();
+        sol->wallT = tt->get_elapsedTimeWall();
+        //
+        for (int i: prob->N) {
+            for (int j: prob->N) {
+                sol->x_ij[i][j] = cplex->getValue(x_ij[i][j]);
+            }
+            sol->u_i[i] = cplex->getValue(u_i[i]);
+        }
+    } catch (IloCplex::Exception e) {
+        std::cout << "no incumbent until the time limit" << std::endl;
+        std::fstream fout;
+        fout.open(lpPath, std::ios::out);
+        fout << "\t No incumbent until the time limit, " << time_limit_sec << "seconds" << "\n";
+    }
+    //
+    return sol;
+}
+
 void DF::build_baseModel() {
     def_FC_cnsts();
     def_AT_cnsts();
     def_objF();
 }
 
-DF::DF(rut::Problem *prob, std::string logPath) {
-    this->prob = prob;
-    this->logPath = logPath;
-    x_ij = new IloNumVar*[(*prob).N.size()];
-    for (int i: (*prob).N) {
-        x_ij[i] = new IloNumVar[(*prob).N.size()];
-    }
-    u_i = new IloNumVar[(*prob).N.size()];
-    cplexModel = new IloModel(env);
-    //
-    def_dvs();
-    build_baseModel();
-    //
-    cplex = new IloCplex(*cplexModel);
-}
-
-DF::~DF() {
-    for (int i = 0; i < (*prob).N.size(); i++)
-        delete [] x_ij[i];
-    delete [] x_ij;
-    delete [] u_i;
-    delete cplexModel;
-    env.end();
-}
 
 void DF::get_x_ij(double **_x_ij) {
     for (int i: (*prob).N) {

@@ -12,10 +12,11 @@ CPLEX_LN_FLAGS+=-stdlib=libc++
 
 CPLEX_HOME:=/Applications/CPLEX_Studio128
 UTIL_HOME:=/Users/ckhan/workspace/util
+JSON_HOME:=/Users/ckhan/workspace/json-develop
 
 SRC_DIR:=./src
 BUILD_DIR:=./build
-LIB_DIR =./lib
+LIB_DIR:=./lib
 
 LIB_FORMAT:=static_pic
 SRC_EXT:=cpp
@@ -38,6 +39,8 @@ UTIL_NAME:=util
 UTIL_INC_DIR:=$(UTIL_HOME)/include
 UTIL_LIB_DIR:=$(UTIL_HOME)/lib
 
+JSON_INC_DIR:=$(JSON_HOME)/single_include
+
 #####################################################################
 MAIN_CPP:=main.$(SRC_EXT)
 MAIN_OBJ:=$(BUILD_DIR)/main.$(OBJ_EXT)
@@ -49,8 +52,8 @@ OBJECTS:=$(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(SOURCES:.$(SRC_EXT)=.$(OBJ_EXT
 #####################################################################
 SEQ_NAME:=sequencer
 SEQ_DIR:=$(BUILD_DIR)/GH
-SEQ_C:=$(SRC_DIR)/GH/$(SEQ_NAME).c
-SEQ_OBJ:=$(SEQ_DIR)/$(SEQ_NAME).$(OBJ_EXT)
+SEQ_C:=$(SRC_DIR)/GH/Sequencer.c
+SEQ_OBJ:=$(SEQ_DIR)/Sequencer.$(OBJ_EXT)
 SEQ_STL:=$(LIB_DIR)/lib$(SEQ_NAME).a
 SEQ_DYL:=$(LIB_DIR)/lib$(SEQ_NAME).$(DYL_EXT)
 
@@ -75,7 +78,7 @@ echoTest:
 
 #Target:Pre-req
 $(PROGRAM): $(MAIN_OBJ) $(OBJECTS) $(SEQ_STL)
-	$(CXX) $(CXX_FLAGS) $(CXX_LIB_DIRS) $(CXX_LN_FLAGS) $(MAIN_OBJ) $(OBJECTS) -o $(PROGRAM) 
+	$(CXX) $(CXX_FLAGS) $(CXX_LIB_DIRS) $(MAIN_OBJ) $(OBJECTS) -o $(PROGRAM) $(CXX_LN_FLAGS) 
 
 $(MAIN_OBJ): $(MAIN_CPP)
 	@mkdir -p $(dir $@)

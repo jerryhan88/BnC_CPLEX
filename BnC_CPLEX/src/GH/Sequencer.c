@@ -6,7 +6,7 @@
 //  Copyright © 2019 Chung-Kyun HAN. All rights reserved.
 //
 
-#include "Sequencer.h"
+#include "../../include/ck_route/Sequencer.h"
 
 
 
@@ -35,9 +35,7 @@ void set_min_tt_seq(int* partialSeq, int partialSeqSize,
             double tt = get_travelTime(seq, minSeqSize,
                                        al_i, be_i,
                                        t_ij);
-            if (tt == -1.0) {
-                continue;
-            } else if (tt < min_tt) {
+            if (tt < min_tt) {
                 if ( valid_TWs(seq, minSeqSize,
                                 al_i, be_i,
                                t_ij) ) {
@@ -67,9 +65,7 @@ void set_min_tt_seq(int* partialSeq, int partialSeqSize,
                 double tt = get_travelTime(seq, minSeqSize,
                                             al_i, be_i,
                                             t_ij);
-                if (tt == -1.0) {
-                    continue;
-                } else if (tt < min_tt) {
+                if (tt < min_tt) {
                     if ( valid_TWs(seq, minSeqSize,
                                     al_i, be_i,
                                    t_ij) ) {
@@ -84,9 +80,9 @@ void set_min_tt_seq(int* partialSeq, int partialSeqSize,
     }
 }
 
-bool valid_TWs(int* seq, int seqSize,
-                double* al_i, double* be_i,
-                double** t_ij) {
+bool valid_TWs(int *seq, int seqSize,
+                double *al_i, double *be_i,
+                double **t_ij) {
     int n0, n1;
     n0 = seq[0];
     double erest_deptTime, erest_arrvTime = -1.0;

@@ -68,8 +68,6 @@ void CutComposer::invoke (const IloCplex::Callback::Context &context) {
 //            }
         if (relaxedVal < bestRelVal) {
             bestRelVal = relaxedVal;
-
-            
 //            double timeRecored = tt->get_elipsedTimeCPU();
 //            time4FDV += tt->get_elipsedTimeCPU() - timeRecored;
 //            timeRecored = tt->get_elipsedTimeCPU();

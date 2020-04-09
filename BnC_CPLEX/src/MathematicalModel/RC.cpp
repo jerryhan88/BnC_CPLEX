@@ -6,27 +6,10 @@
 //  Copyright © 2019 Chung-Kyun HAN. All rights reserved.
 //
 
-#include "../../include/ck_route/RouteMM.hpp"
+#include "../../include/ck_route/Router.hpp"
 #include "../../include/ck_route/CutBase.hpp"
 
-rmm::RC::RC(rut::Problem* prob, std::string logPath, std::vector<std::string> cut_names) : RouteMM(prob, logPath, 'L', true) {
-    std::vector<CutBase*> cuts = get_cutInstances(cut_names, IloCplex::UseCutForce, IloFalse);
-    cc = new CutComposer(prob, cuts, env, x_ij, logPath, nullptr);
-    //
-    cplex->setOut(env.getNullStream());
-    if (logPath != "") {
-        std::string _header("nItr,objV");
-        for (CutBase *c: cc->cuts) {
-            _header += "," + c->cut_name;
-        }
-        _header += ",note";
-        char header[_header.size() + 1];
-        std::strcpy(header, _header.c_str());
-        createCSV(logPath, header);
-    }
-}
-
-void rmm::RC::solve() {
+rut::Solution* rmm::RC::solve() {
     double** _x_ij = new double *[(*prob).N.size()];
     double* _u_i = new double[(*prob).N.size()];
     for (int i: (*prob).N) {
@@ -60,4 +43,7 @@ void rmm::RC::solve() {
     }
     delete [] _x_ij;
     delete [] _u_i;
+    
+    
+    return nullptr;
 }

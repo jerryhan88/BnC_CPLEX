@@ -284,7 +284,7 @@ IloRangeArray IP_cut::get_detectedCuts(CutComposer *cc) {
         }
         addedSets2MM.insert(S1);
         lhs_expr.clear();
-        sprintf(buf, "%s(%d)", cut_name.c_str(), (int) cnsts.getSize());
+        sprintf(buf, "%s(%d)", cut_name.c_str(), cutCounter++);
         set_LHS_Expr(lhs_expr, cc->x_ij, S1);
         cnsts.add(lhs_expr <= 0);
         cnsts[cnsts.getSize() - 1].setName(buf);

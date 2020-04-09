@@ -18,7 +18,7 @@
 
 #include <ilcplex/ilocplex.h>
 
-#include "Problem.hpp"
+#include "Other.hpp"
 
 #include "ck_util/util.hpp"
 
@@ -34,6 +34,7 @@ public:
     std::string cut_name;
     IloCplex::CutManagement cutManagerType;
     IloBool isLocalCutAdd;
+    int cutCounter;
     //
     CutBase(std::string cut_name){
         this->cut_name = cut_name;
@@ -41,6 +42,7 @@ public:
     CutBase(std::string cut_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd) : CutBase::CutBase(cut_name){
         this->cutManagerType = cutManagerType;
         this->isLocalCutAdd = isLocalCutAdd;
+        this->cutCounter = 0;
     }
     //
     virtual IloRangeArray get_cut_cnsts(double **x_ij, CutComposer *cc) {

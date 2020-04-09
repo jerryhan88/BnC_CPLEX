@@ -6,8 +6,51 @@
 //  Copyright © 2020 Chung-Kyun HAN. All rights reserved.
 //
 
-#include "../../include/ck_route/RouteMM.hpp"
+#include "../../include/ck_route/Router.hpp"
 
+rut::Solution* rmm::RouteMM::solve() {
+    run();
+    //
+    rut::Solution *sol = new rut::Solution(prob);
+    //
+    try {
+        sol->objV = cplex->getObjValue();
+        sol->gap = cplex->getMIPRelativeGap();
+        sol->cpuT = tt->get_elapsedTimeCPU();
+        sol->wallT = tt->get_elapsedTimeWall();
+        //
+        char note[2048];
+        sprintf(note,"\"{\'numNodes\': %lld, \'numGenCuts\': %d, \'time4Sep\': %f,\'time4FDV\': %f, \'num4Sep\': %d}\"",
+                        cplex->getNnodes64(),
+                        getNumGenCuts(),
+                        getTime4Sep(),
+                        getTime4FDV(),
+                        getNum4Sep());
+        sol->note = std::string(note);
+        //
+        for (int i: prob->N) {
+            for (int j: prob->N) {
+                sol->x_ij[i][j] = cplex->getValue(x_ij[i][j]);
+            }
+            sol->u_i[i] = cplex->getValue(u_i[i]);
+        }
+    } catch (IloCplex::Exception e) {
+        std::cout << "no incumbent until the time limit" << std::endl;
+        std::fstream fout;
+        fout.open(lpPath, std::ios::out);
+        fout << "\t No incumbent until the time limit, " << time_limit_sec << "seconds" << "\n";
+        fout.close();
+    }
+    return sol;
+}
+
+void rmm::RouteMM::run() {
+    cplex->solve();
+    if (cplex->getStatus() == IloAlgorithm::Infeasible) {
+        cplex->exportModel(lpPath.c_str());
+        throw "Infeasible";
+    }
+}
 
 void rmm::RouteMM::get_x_ij(double **_x_ij) {
     for (int i: (*prob).N) {

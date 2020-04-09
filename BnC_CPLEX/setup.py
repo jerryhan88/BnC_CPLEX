@@ -115,7 +115,6 @@ def set_paths():
 			assert False
 	UTIL_INC_DIR = opath.join(UTIL_HOME, 'include')
 	UTIL_LIB_DIR = opath.join(UTIL_HOME, 'lib')
-	#
 
 def set_flags():
 	if CPLEX_HOME is None:
@@ -177,9 +176,9 @@ def genBIN():
 	comBASE()
 	genSTL_SEQ()
 	#
-	cmd = "%s %s %s %s %s %s -o %s" \
-					% (CXX, CXX_FLAGS, CXX_LIB_DIRS, CXX_LN_FLAGS,
-						MAIN_OBJ, ' '.join(OBJECTS), PROGRAM)
+	cmd = "%s %s %s %s %s -o %s %s" \
+					% (CXX, CXX_FLAGS, CXX_LIB_DIRS, 
+						MAIN_OBJ, ' '.join(OBJECTS), PROGRAM, CXX_LN_FLAGS)
 	res = os.system(cmd)
 	assert res == 0
 	
