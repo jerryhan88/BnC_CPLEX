@@ -28,6 +28,20 @@ class CutComposer;
 
 int getNextNodeByFlow(int n0, CutComposer *cc, const IloCplex::Callback::Context &context);
 
+int get_numP(std::set<int> S1, rut::Problem *prob);
+double get_vS(const std::set<int> &S1, rut::Problem *prob);
+double get_wS(const std::set<int> &S1, rut::Problem *prob);
+double get_LHS_CA(const std::set<int> &S, double **x_ij, rut::Problem *prob);
+
+int get_numFlowReturn(std::set<int> S1, rut::Problem *prob);
+
+bool get_cyclicPath(int ori, int dest, bool *visited, int numNodes, std::vector<int> &path,
+                    CutComposer *cc, const IloCplex::Callback::Context &context);
+
+std::set<std::set<int>> get_maxCycles(const std::vector<int> &origins,
+                                      CutComposer *cc, const IloCplex::Callback::Context &context);
+std::set<std::set<edge>> get_infeasiblePaths(CutComposer *cc, const IloCplex::Callback::Context &context);
+
 
 class CutBase {
 public:
@@ -89,81 +103,115 @@ public:
         delete [] _x_ij;
     };
     //
-    virtual void invoke (const IloCplex::Callback::Context &context);
+    virtual void invoke(const IloCplex::Callback::Context &context);
 };
 
 
 class SE_cut : public CutBase {
 public:
     std::set<std::set<int>> generatedSets;
-    std::set<std::set<int>> addedSets2MM;
-    std::function<std::set<std::set<int>>(CutComposer *cc, const IloCplex::Callback::Context &context)> separationAlgo;
-    SE_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd);
+    SE_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd): CutBase(ch_name, cutManagerType, isLocalCutAdd) { }
+    ~SE_cut() {
+        generatedSets.clear();
+    }
     //
-    IloRangeArray get_cut_cnsts(double **x_ij, CutComposer *cc);
+    bool validate_subset(const std::set<int> &S1, rut::Problem *prob);
+    bool validate_LHS(const std::set<int> &S1, CutComposer *cc, const IloCplex::Callback::Context &context);
     void add_cut(CutComposer *cc, const IloCplex::Callback::Context &context);
+    void add_cnsts2Model(const std::set<std::set<int>> &validSets, CutComposer *cc, const IloCplex::Callback::Context &context);
+    void set_LHS_Expr(IloExpr &lhs_expr, IloNumVar **x_ij, const std::set<int> &S1);
+    IloRangeArray get_cut_cnsts(double **x_ij, CutComposer *cc);
+    //
     std::string add_cut_wLogging(CutComposer *cc, const IloCplex::Callback::Context &context);
     IloRangeArray get_detectedCuts(CutComposer *cc);
 private:
-    bool valid_subset(const std::set<int> &S1, rut::Problem *prob);
     std::set<std::set<int>> solve_separationProb(CutComposer *cc, const IloCplex::Callback::Context &context);
-    void set_LHS_Expr(IloExpr &lhs_expr, IloNumVar **x_ij, const std::set<int> &S1);
-    void add_cnsts2Model(const std::set<std::set<int>> &validSets, CutComposer *cc, const IloCplex::Callback::Context &context);
+    
 };
 
 class CA_cut : public CutBase {
 public:
     std::set<std::set<int>> generatedSets;
-    std::set<std::set<int>> addedSets2MM;
-    std::function<std::set<std::set<int>>(CutComposer *cc, const IloCplex::Callback::Context &context)> separationAlgo;
-    CA_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd);
+    CA_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd): CutBase(ch_name, cutManagerType, isLocalCutAdd) { }
+    ~CA_cut() {
+        generatedSets.clear();
+    }
     //
-    IloRangeArray get_cut_cnsts(double **x_ij, CutComposer *cc);
+    bool validate_subset(const std::set<int> &S1, rut::Problem *prob);
+    bool validate_LHS(const std::set<int> &S1, rut::Problem *prob, CutComposer *cc, const IloCplex::Callback::Context &context);
     void add_cut(CutComposer *cc, const IloCplex::Callback::Context &context);
-    std::string add_cut_wLogging(CutComposer *cc, const IloCplex::Callback::Context &context);
-    IloRangeArray get_detectedCuts(CutComposer *cc);
-private:
-    bool valid_subset(const std::set<int> &S1, rut::Problem *prob);
-    std::set<std::set<int>> solve_separationProb(CutComposer *cc, const IloCplex::Callback::Context &context);
-    void set_LHS_Expr(IloExpr &lhs_expr, IloNumVar **x_ij, const std::set<int> &S1, rut::Problem *prob);
     void add_cnsts2Model(const std::set<std::set<int>> &validSets,  CutComposer *cc, const IloCplex::Callback::Context &context);
+    void set_LHS_Expr(IloExpr &lhs_expr, IloNumVar **x_ij, const std::set<int> &S1, rut::Problem *prob);
+    IloRangeArray get_detectedCuts(CutComposer *cc);
+    //
+    std::string add_cut_wLogging(CutComposer *cc, const IloCplex::Callback::Context &context);
+    IloRangeArray get_cut_cnsts(double **x_ij, CutComposer *cc);
+private:
+    std::set<std::set<int>> solve_separationProb(CutComposer *cc, const IloCplex::Callback::Context &context);
 };
 
 // Routine Sequence cut!
 class RS_cut : public CutBase {
 public :
     std::set<std::set<int>> generatedSets;
-    std::set<std::set<int>> addedSets2MM;
-    std::function<std::set<std::set<int>>(CutComposer *cc, const IloCplex::Callback::Context &context)> separationAlgo;
-    RS_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd);
-    IloRangeArray get_cut_cnsts(double **x_ij, CutComposer *cc);
+    RS_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd): CutBase(ch_name, cutManagerType, isLocalCutAdd) { }
+    ~RS_cut() {
+        generatedSets.clear();
+    }
+    //
+    bool validate_subset(const std::set<int> &S1, rut::Problem *prob);
+    bool validate_LHS(const std::set<int> &S1, rut::Problem *prob, CutComposer *cc, const IloCplex::Callback::Context &context);
     void add_cut(CutComposer *cc, const IloCplex::Callback::Context &context);
-    std::string add_cut_wLogging(CutComposer *cc, const IloCplex::Callback::Context &context);
-    IloRangeArray get_detectedCuts(CutComposer *cc);
-private:
-    bool valid_subset(const std::set<int> &S1, rut::Problem *prob);
-    std::set<std::set<int>> solve_separationProb(CutComposer *cc, const IloCplex::Callback::Context &context);
-    void set_LHS_Expr(IloExpr &lhs_expr, IloNumVar **x_ij, const std::set<int> &S1, rut::Problem *prob);
     void add_cnsts2Model(const std::set<std::set<int>> &validSets, CutComposer *cc, const IloCplex::Callback::Context &context);
+    void set_LHS_Expr(IloExpr &lhs_expr, IloNumVar **x_ij, const std::set<int> &S1, rut::Problem *prob);
+    IloRangeArray get_detectedCuts(CutComposer *cc);
+    //
+    std::string add_cut_wLogging(CutComposer *cc, const IloCplex::Callback::Context &context);
+    IloRangeArray get_cut_cnsts(double **x_ij, CutComposer *cc);
+private:
+    std::set<std::set<int>> solve_separationProb(CutComposer *cc, const IloCplex::Callback::Context &context);
 };
 
 // Infeasible Path cut!
 class IP_cut : public CutBase {
 public:
     std::set<std::set<edge>> generatedSets;
-    std::set<std::set<edge>> addedSets2MM;
-    std::function<std::set<std::set<edge>>(CutComposer *cc, const IloCplex::Callback::Context &context)> separationAlgo;
-    IP_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd);
+    IP_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd): CutBase(ch_name, cutManagerType, isLocalCutAdd) { }
+    ~IP_cut() {
+        generatedSets.clear();
+    }
     //
-    IloRangeArray get_cut_cnsts(double **x_ij, CutComposer *cc);
     void add_cut(CutComposer *cc, const IloCplex::Callback::Context &context);
-    std::string add_cut_wLogging(CutComposer *cc, const IloCplex::Callback::Context &context);
-    IloRangeArray get_detectedCuts(CutComposer *cc);
-private:
-    bool valid_subset(const std::set<edge> &S1);
-    std::set<std::set<edge>> solve_separationProb(CutComposer *cc, const IloCplex::Callback::Context &context);
     void set_LHS_Expr(IloExpr &lhs_expr, IloNumVar **x_ij, const std::set<edge> &S1);
+    IloRangeArray get_detectedCuts(CutComposer *cc);
+    //
+    std::string add_cut_wLogging(CutComposer *cc, const IloCplex::Callback::Context &context);
+    IloRangeArray get_cut_cnsts(double **x_ij, CutComposer *cc);
+private:
+    bool validate_subset(const std::set<edge> &S1);
+    std::set<std::set<edge>> solve_separationProb(CutComposer *cc, const IloCplex::Callback::Context &context);
     void add_cnsts2Model(const std::set<std::set<edge>> &validSets, CutComposer *cc, const IloCplex::Callback::Context &context);
+};
+
+
+class ALL_cut : public CutBase {
+public:
+    SE_cut* se_cut;
+    CA_cut* ca_cut;
+    RS_cut* rs_cut;
+    IP_cut* ip_cut;
+    ALL_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd): CutBase(ch_name, cutManagerType, isLocalCutAdd) {
+        this->se_cut = new SE_cut("SE", cutManagerType, isLocalCutAdd);
+        this->ca_cut = new CA_cut("CA", cutManagerType, isLocalCutAdd);
+        this->rs_cut = new RS_cut("RS", cutManagerType, isLocalCutAdd);
+        this->ip_cut = new IP_cut("IP", cutManagerType, isLocalCutAdd);
+    }
+    ~ALL_cut() {
+        delete se_cut; delete ca_cut; delete rs_cut; delete ip_cut;
+    }
+    //
+    void add_cut(CutComposer *cc, const IloCplex::Callback::Context &context);
+    IloRangeArray get_detectedCuts(CutComposer *cc);
 };
 
 #endif /* CutBase_hpp */

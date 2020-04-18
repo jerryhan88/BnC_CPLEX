@@ -34,5 +34,6 @@ rmm::ILP::ILP(rut::Problem *prob, TimeTracker* tt, unsigned long time_limit_sec,
         std::strcpy(header, _header.c_str());
         createCSV(this->logPath, header);
     }
+    this->cc = nullptr;
 }
 

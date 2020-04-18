@@ -95,18 +95,22 @@ void rmm::RouteMM::set_initSol(double** _x_ij, double* _u_i) {
 
 std::vector<CutBase*> rmm::RouteMM::get_cutInstances(std::vector<std::string> cut_names, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd) {
     std::vector<CutBase*> cuts;
-    for (std::string cut_name: cut_names) {
-        std::string cutType = cut_name.substr(1);
-        if (cutType == "SE") {
-            cuts.push_back(new SE_cut(cut_name, cutManagerType, isLocalCutAdd));
-        } else if (cutType == "CA") {
-            cuts.push_back(new CA_cut(cut_name, cutManagerType, isLocalCutAdd));
-        } else if (cutType == "RS") {
-            cuts.push_back(new RS_cut(cut_name, cutManagerType, isLocalCutAdd));
-        } else if (cutType == "IP") {
-            cuts.push_back(new IP_cut(cut_name, cutManagerType, isLocalCutAdd));
-        } else {
-            assert(false);
+    if (cut_names.size() == 4) {
+        cuts.push_back(new ALL_cut("ALL", cutManagerType, isLocalCutAdd));
+    } else {
+        for (std::string cut_name: cut_names) {
+            std::string cutType = cut_name.substr(1);
+            if (cutType == "SE") {
+                cuts.push_back(new SE_cut(cut_name, cutManagerType, isLocalCutAdd));
+            } else if (cutType == "CA") {
+                cuts.push_back(new CA_cut(cut_name, cutManagerType, isLocalCutAdd));
+            } else if (cutType == "RS") {
+                cuts.push_back(new RS_cut(cut_name, cutManagerType, isLocalCutAdd));
+            } else if (cutType == "IP") {
+                cuts.push_back(new IP_cut(cut_name, cutManagerType, isLocalCutAdd));
+            } else {
+                assert(false);
+            }
         }
     }
     return cuts;

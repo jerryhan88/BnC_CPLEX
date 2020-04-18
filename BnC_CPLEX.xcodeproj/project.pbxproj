@@ -23,6 +23,7 @@
 		8FA1B1CD233E050800FF9F44 /* ILP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FA1B1CB233E050800FF9F44 /* ILP.cpp */; };
 		8FA1B1D7233F567400FF9F44 /* RC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FA1B1D5233F567400FF9F44 /* RC.cpp */; };
 		8FDDA6AF243D9CB600AFF509 /* Solution.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FDDA6AD243D9CB600AFF509 /* Solution.cpp */; };
+		8FDED65D24404D19004744BF /* ALL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FDED65C24404D19004744BF /* ALL.cpp */; };
 		8FE2BC342409047B00BE2ADC /* libutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8FE2BC332409047B00BE2ADC /* libutil.a */; };
 		8FFBFBAD236A8727003151B9 /* IH.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FFBFBAB236A8727003151B9 /* IH.cpp */; };
 /* End PBXBuildFile section */
@@ -62,6 +63,7 @@
 		8FA1B1CB233E050800FF9F44 /* ILP.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ILP.cpp; sourceTree = "<group>"; };
 		8FA1B1D5233F567400FF9F44 /* RC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RC.cpp; sourceTree = "<group>"; };
 		8FDDA6AD243D9CB600AFF509 /* Solution.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Solution.cpp; sourceTree = "<group>"; };
+		8FDED65C24404D19004744BF /* ALL.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ALL.cpp; sourceTree = "<group>"; };
 		8FE2BC332409047B00BE2ADC /* libutil.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libutil.a; path = ../util/lib/libutil.a; sourceTree = "<group>"; };
 		8FFBFBAB236A8727003151B9 /* IH.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IH.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -152,6 +154,7 @@
 				8F6CCDE523715ED800F9CFB1 /* CA.cpp */,
 				8F802BF423448CE5000D5AF1 /* RS.cpp */,
 				8F3EE70D2355AEFD004BB9BB /* IP.cpp */,
+				8FDED65C24404D19004744BF /* ALL.cpp */,
 			);
 			path = Cuts;
 			sourceTree = "<group>";
@@ -254,6 +257,7 @@
 				8F3E9490236A8A7C00077CE6 /* Sequencer.c in Sources */,
 				8F80EB14240BA94900EEB8F0 /* CutBase.cpp in Sources */,
 				8F80EB16240BAFC500EEB8F0 /* RouteMM.cpp in Sources */,
+				8FDED65D24404D19004744BF /* ALL.cpp in Sources */,
 				8F3EE70E2355AEFD004BB9BB /* IP.cpp in Sources */,
 				8FDDA6AF243D9CB600AFF509 /* Solution.cpp in Sources */,
 				8F2113DE23288B76001CF34C /* main.cpp in Sources */,

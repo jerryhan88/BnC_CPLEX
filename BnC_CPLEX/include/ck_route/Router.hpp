@@ -93,6 +93,7 @@ public:
     IloEnv env;
     IloModel *cplexModel;
     IloNumVar **x_ij, *u_i;
+    CutComposer *cc;
     //
     RouteMM(rut::Problem *prob, TimeTracker* tt, unsigned long time_limit_sec, std::string logPath, std::string lpPath, char vType, bool isTightenModel): Router(prob, tt, time_limit_sec, logPath) {
         this->lpPath = lpPath;
@@ -189,14 +190,12 @@ public:
 
 class BnC : public RouteMM {
 public:
-    CutComposer *cc;
-    //
     BnC(rut::Problem *prob, TimeTracker* tt, unsigned long time_limit_sec,
         std::string logPath, std::string lpPath,
         std::vector<std::string> cut_names, bool isTightenModel,
         IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd) : RouteMM(prob, tt, time_limit_sec, logPath, lpPath, 'I', isTightenModel) {
         std::vector<CutBase*> cuts = get_cutInstances(cut_names, cutManagerType, isLocalCutAdd);
-        cc = new CutComposer(prob, cuts, env, x_ij, logPath, tt);
+        this->cc = new CutComposer(prob, cuts, env, x_ij, logPath, tt);
         CPXLONG contextMask = 0;
         contextMask |= IloCplex::Callback::Context::Id::Relaxation;
         cplex->use(cc, contextMask);
