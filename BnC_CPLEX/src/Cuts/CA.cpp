@@ -73,9 +73,6 @@ void CA_cut::set_LHS_Expr(IloExpr &lhs_expr, IloNumVar **x_ij, const std::set<in
     lhs_expr -= ((int) S1.size() - maxCapa);
 }
 
-
-
-
 void CA_cut::add_cnsts2Model(const std::set<std::set<int>> &validSets,  CutComposer *cc, const IloCplex::Callback::Context &context) {
     for (std::set<int> S1: validSets) {
         generatedSets.insert(S1);
@@ -85,6 +82,10 @@ void CA_cut::add_cnsts2Model(const std::set<std::set<int>> &validSets,  CutCompo
         lhs_expr.end();
         cc->numGenCuts += 1;
     }
+}
+
+void CA_cut::clear_detectedCuts() {
+    generatedSets.clear();
 }
 
 void CA_cut::add_cut(CutComposer *cc, const IloCplex::Callback::Context &context) {

@@ -45,6 +45,13 @@ void ALL_cut::add_cut(CutComposer *cc, const IloCplex::Callback::Context &contex
     ip_cut->add_cut(cc, context);
 }
 
+void ALL_cut::clear_detectedCuts() {
+       se_cut->generatedSets.clear();
+       ca_cut->generatedSets.clear();
+       rs_cut->generatedSets.clear();
+       ip_cut->generatedSets.clear();
+   }
+
 IloRangeArray ALL_cut::get_detectedCuts(CutComposer *cc) {
     char buf[2048];
     IloRangeArray cnsts(cc->env);
@@ -87,5 +94,16 @@ IloRangeArray ALL_cut::get_detectedCuts(CutComposer *cc) {
     ip_cut->generatedSets.clear();
     //
     lhs_expr.end();
+    return cnsts;
+}
+
+
+
+std::string ALL_cut::add_cut_wLogging(CutComposer *cc, const IloCplex::Callback::Context &context) {
+    std::string cnsts = "";
+    cnsts += "|" + se_cut->add_cut_wLogging(cc, context);
+    cnsts += "|" + ca_cut->add_cut_wLogging(cc, context);
+    cnsts += "|" + rs_cut->add_cut_wLogging(cc, context);
+    cnsts += "|" + ip_cut->add_cut_wLogging(cc, context);
     return cnsts;
 }

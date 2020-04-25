@@ -45,7 +45,12 @@ rut::Solution* rmm::RouteMM::solve() {
 }
 
 void rmm::RouteMM::run() {
-    cplex->solve();
+    try {
+        cplex->solve();
+    } catch(IloException& e) {
+       std::cerr << "Concert exception caught" << e << std::endl;
+       throw;
+    }
     if (cplex->getStatus() == IloAlgorithm::Infeasible) {
         cplex->exportModel(lpPath.c_str());
         throw "Infeasible";

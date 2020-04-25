@@ -74,6 +74,10 @@ void RS_cut::add_cnsts2Model(const std::set<std::set<int>> &validSets,  CutCompo
     }
 }
 
+void RS_cut::clear_detectedCuts() {
+    generatedSets.clear();
+}
+
 void RS_cut::add_cut(CutComposer *cc, const IloCplex::Callback::Context &context) {
     std::set<std::set<int>> validSets = solve_separationProb(cc, context);
     add_cnsts2Model(validSets, cc, context);

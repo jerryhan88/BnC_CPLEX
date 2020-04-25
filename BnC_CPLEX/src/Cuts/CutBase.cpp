@@ -12,7 +12,6 @@
 
 std::mutex cut_mtx;
 
-#define REL_VALS_LIMIT 32
 
 int getNextNodeByFlow(int n0, CutComposer *cc, const IloCplex::Callback::Context &context) {
     int n1 = -1;

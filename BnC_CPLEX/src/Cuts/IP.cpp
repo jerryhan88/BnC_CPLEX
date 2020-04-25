@@ -102,6 +102,10 @@ IloRangeArray IP_cut::get_detectedCuts(CutComposer *cc) {
 }
 
 
+void IP_cut::clear_detectedCuts() {
+    generatedSets.clear();
+}
+
 
 //
 // The below codes are for dealing with cuts of the root node

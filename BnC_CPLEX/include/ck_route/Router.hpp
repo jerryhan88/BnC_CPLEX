@@ -233,6 +233,11 @@ public:
             cplexModel->add(c->get_detectedCuts(cc));
         }
     }
+    void clear_detectedCuts() {
+        for (CutBase *c: cc->cuts) {
+            c->clear_detectedCuts();
+        }
+    }
 };
 
 class LP : public RouteMM {

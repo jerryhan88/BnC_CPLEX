@@ -71,6 +71,9 @@ public:
     virtual IloRangeArray get_detectedCuts(CutComposer *cc) {
         throw "Should override get_detectedCuts()";
     }
+    virtual void clear_detectedCuts() {
+        throw "Should override clear_detectedCuts()";
+    }
     //
     void addUserCutwCust(const IloCplex::Callback::Context &context, IloExpr lhs_expr);
 };
@@ -119,6 +122,7 @@ public:
     bool validate_LHS(const std::set<int> &S1, CutComposer *cc, const IloCplex::Callback::Context &context);
     void add_cut(CutComposer *cc, const IloCplex::Callback::Context &context);
     void add_cnsts2Model(const std::set<std::set<int>> &validSets, CutComposer *cc, const IloCplex::Callback::Context &context);
+    void clear_detectedCuts();
     void set_LHS_Expr(IloExpr &lhs_expr, IloNumVar **x_ij, const std::set<int> &S1);
     IloRangeArray get_cut_cnsts(double **x_ij, CutComposer *cc);
     //
@@ -141,6 +145,7 @@ public:
     bool validate_LHS(const std::set<int> &S1, rut::Problem *prob, CutComposer *cc, const IloCplex::Callback::Context &context);
     void add_cut(CutComposer *cc, const IloCplex::Callback::Context &context);
     void add_cnsts2Model(const std::set<std::set<int>> &validSets,  CutComposer *cc, const IloCplex::Callback::Context &context);
+    void clear_detectedCuts();
     void set_LHS_Expr(IloExpr &lhs_expr, IloNumVar **x_ij, const std::set<int> &S1, rut::Problem *prob);
     IloRangeArray get_detectedCuts(CutComposer *cc);
     //
@@ -163,6 +168,7 @@ public :
     bool validate_LHS(const std::set<int> &S1, rut::Problem *prob, CutComposer *cc, const IloCplex::Callback::Context &context);
     void add_cut(CutComposer *cc, const IloCplex::Callback::Context &context);
     void add_cnsts2Model(const std::set<std::set<int>> &validSets, CutComposer *cc, const IloCplex::Callback::Context &context);
+    void clear_detectedCuts();
     void set_LHS_Expr(IloExpr &lhs_expr, IloNumVar **x_ij, const std::set<int> &S1, rut::Problem *prob);
     IloRangeArray get_detectedCuts(CutComposer *cc);
     //
@@ -184,6 +190,7 @@ public:
     void add_cut(CutComposer *cc, const IloCplex::Callback::Context &context);
     void set_LHS_Expr(IloExpr &lhs_expr, IloNumVar **x_ij, const std::set<edge> &S1);
     IloRangeArray get_detectedCuts(CutComposer *cc);
+    void clear_detectedCuts();
     //
     std::string add_cut_wLogging(CutComposer *cc, const IloCplex::Callback::Context &context);
     IloRangeArray get_cut_cnsts(double **x_ij, CutComposer *cc);
@@ -211,7 +218,9 @@ public:
     }
     //
     void add_cut(CutComposer *cc, const IloCplex::Callback::Context &context);
+    void clear_detectedCuts();
     IloRangeArray get_detectedCuts(CutComposer *cc);
+    std::string add_cut_wLogging(CutComposer *cc, const IloCplex::Callback::Context &context);
 };
 
 #endif /* CutBase_hpp */
