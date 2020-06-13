@@ -72,11 +72,75 @@ void rmm::RouteMM::get_u_i(double *_u_i) {
 }
 
 void rmm::RouteMM::build_baseModel() {
+    def_preprocessing();
+    //
     def_FC_cnsts();
     def_AT_cnsts();
     def_CP_cnsts();
     def_objF();
 //    def_temp();
+}
+
+void rmm::RouteMM::def_preprocessing() {
+    char buf[DEFAULT_BUFFER_SIZE];
+    IloRangeArray cnsts(env);
+    //
+    std::set<iiTup> invalid_dvX;
+    for (int i0 = 0; i0 < prob->_R.size() - 1; i0++) {
+        int n0 = prob->_R[i0];
+        double al_n0 = prob->al_i[n0];
+        int n2 = prob->_R[i0 + 1];
+        double be_n2 = prob->be_i[n2];
+        for (int n1: prob->P) {
+            if (al_n0 + prob->t_ij[n0][n1] + prob->t_ij[n1][n2] > be_n2) {
+                invalid_dvX.insert(std::make_tuple(n0, n1));
+                invalid_dvX.insert(std::make_tuple(n1, n2));
+            }
+        }
+        for (int n1: prob->D) {
+            if (al_n0 + prob->t_ij[n0][n1] + prob->t_ij[n1][n2] > be_n2) {
+                invalid_dvX.insert(std::make_tuple(n0, n1));
+                invalid_dvX.insert(std::make_tuple(n1, n2));
+            }
+        }
+    }
+    for (int i: prob->N) {
+        for (int j: prob->N) {
+            if (i == prob->d && j == prob->o) {
+                continue;
+            }
+            if (prob->al_i[i] + prob->t_ij[i][j] > prob->be_i[j]) {
+                invalid_dvX.insert(std::make_tuple(i, j));
+            }
+        }
+    }
+    int o = prob->o;
+    for (int i: prob->N) {
+        if (i == prob->d) {
+            continue;
+        }
+        invalid_dvX.insert(std::make_tuple(i, o));
+    }
+    int d = prob->d;
+    for (int j: prob->N) {
+        if (j == prob->o) {
+            continue;
+        }
+        invalid_dvX.insert(std::make_tuple(d, j));
+    }
+    for (int k : prob->K) {
+        int i = prob->n_k[k];
+        int j = prob->h_k[k];
+        invalid_dvX.insert(std::make_tuple(i, j));
+    }
+    int i, j;
+    for (iiTup ele: invalid_dvX) {
+        std::tie(i, j) = ele;
+        cnsts.add(x_ij[i][i] == 0);
+        sprintf(buf, "pP(%d)(%d)", i, j);
+        cnsts[cnsts.getSize() - 1].setName(buf);
+    }
+    cplexModel->add(cnsts);
 }
 
 void rmm::RouteMM::set_initSol(double** _x_ij, double* _u_i) {
@@ -171,13 +235,11 @@ void rmm::RouteMM::def_FC_cnsts() {
     cnsts.add(x_ij[(*prob).d][(*prob).o] == 1);
     cnsts[cnsts.getSize() - 1].setName(buf);
     //
-    linExpr.clear();
-    sprintf(buf, "NS");  // No Self Flow; tightening bounds
     for (int i: (*prob).N) {
-        linExpr += x_ij[i][i];
+        sprintf(buf, "NS(%d)", i);  // No Self Flow; tightening bounds
+        cnsts.add(x_ij[i][i] == 0);
+        cnsts[cnsts.getSize() - 1].setName(buf);
     }
-    cnsts.add(linExpr == 0);
-    cnsts[cnsts.getSize() - 1].setName(buf);
     //
     for (int k: (*prob).K) {
         linExpr.clear();

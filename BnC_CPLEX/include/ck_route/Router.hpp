@@ -26,6 +26,8 @@
 #define DEFAULT_BUFFER_SIZE 2048
 
 typedef std::pair< int, std::vector<int> > tid_bestSeq;
+typedef std::tuple<int, int> iiTup;
+
 
 class Router {
 public:
@@ -161,6 +163,7 @@ protected:
     void build_baseModel();
     std::vector<CutBase*> get_cutInstances(std::vector<std::string> cut_names, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd);
 private:
+    void def_preprocessing();
     void def_FC_cnsts();
     void def_AT_cnsts();
     void def_CP_cnsts();
