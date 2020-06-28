@@ -40,6 +40,9 @@ bool SE_cut::validate_LHS(const std::set<int> &S1, CutComposer *cc, const IloCpl
     double lhs = 0.0;
     for (int i: S1) {
         for (int j: S1) {
+            if (!(cc->bool_x_ij[i][j])) {
+                continue;
+            }
             lhs += context.getRelaxationPoint(cc->x_ij[i][j]);
         }
     }
@@ -74,6 +77,9 @@ std::set<std::set<int>> SE_cut::solve_separationProb(CutComposer *cc, const IloC
 void SE_cut::set_LHS_Expr(IloExpr& lhs_expr, IloNumVar** x_ij, const std::set<int> &S1) {
     for (int i: S1) {
         for (int j: S1) {
+            if (!(bool_x_ij[i][j])) {
+                continue;
+            }
             lhs_expr += x_ij[i][j];
         }
     }

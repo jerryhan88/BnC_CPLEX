@@ -30,7 +30,12 @@ rut::Solution* rmm::RouteMM::solve() {
         //
         for (int i: prob->N) {
             for (int j: prob->N) {
-                sol->x_ij[i][j] = cplex->getValue(x_ij[i][j]);
+                if(bool_x_ij[i][j]) {
+                    sol->x_ij[i][j] = cplex->getValue(x_ij[i][j]);
+                } else {
+                    sol->x_ij[i][j] = 0.0;
+                }
+                
             }
             sol->u_i[i] = cplex->getValue(u_i[i]);
         }
@@ -56,6 +61,35 @@ void rmm::RouteMM::run() {
         throw "Infeasible";
     }
 }
+ 
+IloNumVar** rmm::RouteMM::gen_x_ij(rut::Problem *prob, IloEnv &env, char vType) {
+    IloNumVar::Type ilo_vType = vType == 'I' ? ILOINT : ILOFLOAT;
+    //
+    char buf[DEFAULT_BUFFER_SIZE];
+    IloNumVar **x_ij = new IloNumVar*[prob->N.size()];
+    for (int i: prob->N) {
+        x_ij[i] = new IloNumVar[prob->N.size()];
+        for (int j: prob->N) {
+            if (!bool_x_ij[i][j]) {
+                continue;
+            }
+            sprintf(buf, "x(%d)(%d)", i, j);
+            x_ij[i][j] = IloNumVar(env, 0.0, 1.0, ilo_vType, buf);
+        }
+    }
+    return x_ij;
+}
+
+IloNumVar* rmm::RouteMM::gen_u_i(rut::Problem *prob, IloEnv &env) {
+    char buf[DEFAULT_BUFFER_SIZE];
+    IloNumVar *u_i = new IloNumVar[prob->N.size()];
+    for (int i: prob->N) {
+        sprintf(buf, "u(%d)", i);
+        u_i[i] = IloNumVar(env, 0.0, DBL_MAX, ILOFLOAT, buf);
+    }
+    return u_i;
+}
+
 
 void rmm::RouteMM::get_x_ij(double **_x_ij) {
     for (int i: (*prob).N) {
@@ -72,8 +106,6 @@ void rmm::RouteMM::get_u_i(double *_u_i) {
 }
 
 void rmm::RouteMM::build_baseModel() {
-    def_preprocessing();
-    //
     def_FC_cnsts();
     def_AT_cnsts();
     def_CP_cnsts();
@@ -81,10 +113,7 @@ void rmm::RouteMM::build_baseModel() {
 //    def_temp();
 }
 
-void rmm::RouteMM::def_preprocessing() {
-    char buf[DEFAULT_BUFFER_SIZE];
-    IloRangeArray cnsts(env);
-    //
+void rmm::RouteMM::preprocessing() {
     std::set<iiTup> invalid_dvX;
     for (int i0 = 0; i0 < prob->_R.size() - 1; i0++) {
         int n0 = prob->_R[i0];
@@ -136,11 +165,8 @@ void rmm::RouteMM::def_preprocessing() {
     int i, j;
     for (iiTup ele: invalid_dvX) {
         std::tie(i, j) = ele;
-        cnsts.add(x_ij[i][i] == 0);
-        sprintf(buf, "pP(%d)(%d)", i, j);
-        cnsts[cnsts.getSize() - 1].setName(buf);
+        bool_x_ij[i][j] = false;
     }
-    cplexModel->add(cnsts);
 }
 
 void rmm::RouteMM::set_initSol(double** _x_ij, double* _u_i) {
@@ -148,6 +174,9 @@ void rmm::RouteMM::set_initSol(double** _x_ij, double* _u_i) {
     IloNumArray startVal(env);
     for (int i: (*prob).N) {
         for (int j: (*prob).N) {
+            if (!_x_ij[i][j]) {
+                continue;
+            }
             startVar.add(x_ij[i][j]);
             startVal.add(_x_ij[i][j]);
         }
@@ -162,21 +191,21 @@ void rmm::RouteMM::set_initSol(double** _x_ij, double* _u_i) {
     startVar.end();
 }
 
-std::vector<CutBase*> rmm::RouteMM::get_cutInstances(std::vector<std::string> cut_names, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd) {
+std::vector<CutBase*> rmm::RouteMM::get_cutInstances(std::vector<std::string> cut_names, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd, bool **bool_x_ij) {
     std::vector<CutBase*> cuts;
     if (cut_names.size() == 4) {
-        cuts.push_back(new ALL_cut("ALL", cutManagerType, isLocalCutAdd));
+        cuts.push_back(new ALL_cut("ALL", cutManagerType, isLocalCutAdd, bool_x_ij));
     } else {
         for (std::string cut_name: cut_names) {
             std::string cutType = cut_name.substr(1);
             if (cutType == "SE") {
-                cuts.push_back(new SE_cut(cut_name, cutManagerType, isLocalCutAdd));
+                cuts.push_back(new SE_cut(cut_name, cutManagerType, isLocalCutAdd, bool_x_ij));
             } else if (cutType == "CA") {
-                cuts.push_back(new CA_cut(cut_name, cutManagerType, isLocalCutAdd));
+                cuts.push_back(new CA_cut(cut_name, cutManagerType, isLocalCutAdd, bool_x_ij));
             } else if (cutType == "RS") {
-                cuts.push_back(new RS_cut(cut_name, cutManagerType, isLocalCutAdd));
+                cuts.push_back(new RS_cut(cut_name, cutManagerType, isLocalCutAdd, bool_x_ij));
             } else if (cutType == "IP") {
-                cuts.push_back(new IP_cut(cut_name, cutManagerType, isLocalCutAdd));
+                cuts.push_back(new IP_cut(cut_name, cutManagerType, isLocalCutAdd, bool_x_ij));
             } else {
                 assert(false);
             }
@@ -193,6 +222,9 @@ void rmm::RouteMM::def_FC_cnsts() {
     linExpr.clear();
     sprintf(buf, "iF1");
     for (int j: (*prob).N) {
+        if (!bool_x_ij[(*prob).o][j]) {
+            continue;
+        }
         linExpr += x_ij[(*prob).o][j];
     }
     cnsts.add(linExpr == 1);
@@ -201,6 +233,9 @@ void rmm::RouteMM::def_FC_cnsts() {
     linExpr.clear();
     sprintf(buf, "iF2");
     for (int j: (*prob).N) {
+        if (!bool_x_ij[j][(*prob).d]) {
+            continue;
+        }
         linExpr += x_ij[j][(*prob).d];
     }
     cnsts.add(linExpr == 1);
@@ -214,6 +249,9 @@ void rmm::RouteMM::def_FC_cnsts() {
         for (int j: (*prob).N) {
             if (i == j)
                 continue;
+            if (!bool_x_ij[i][j]) {
+                continue;
+            }
             linExpr += x_ij[i][j];
         }
         cnsts.add(linExpr == 1);
@@ -224,6 +262,9 @@ void rmm::RouteMM::def_FC_cnsts() {
         for (int j: (*prob).N) {
             if (i == j)
                 continue;
+            if (!bool_x_ij[j][i]) {
+                continue;
+            }
             linExpr += x_ij[j][i];
         }
         cnsts.add(linExpr == 1);
@@ -237,6 +278,9 @@ void rmm::RouteMM::def_FC_cnsts() {
     //
     for (int i: (*prob).N) {
         sprintf(buf, "NS(%d)", i);  // No Self Flow; tightening bounds
+        if (!bool_x_ij[i][i]) {
+            continue;
+        }
         cnsts.add(x_ij[i][i] == 0);
         cnsts[cnsts.getSize() - 1].setName(buf);
     }
@@ -245,9 +289,15 @@ void rmm::RouteMM::def_FC_cnsts() {
         linExpr.clear();
         sprintf(buf, "tFC(%d)", k);
         for (int j: (*prob).N) {
+            if (!bool_x_ij[(*prob).n_k[k]][j]) {
+                continue;
+            }
             linExpr += x_ij[(*prob).n_k[k]][j];
         }
         for (int j: (*prob).N) {
+            if (!bool_x_ij[j][(*prob).h_k[k]]) {
+                continue;
+            }
             linExpr -= x_ij[j][(*prob).h_k[k]];
         }
         cnsts.add(linExpr <= 0);
@@ -258,6 +308,9 @@ void rmm::RouteMM::def_FC_cnsts() {
         linExpr.clear();
         sprintf(buf, "FC_1(%d)", i);
         for (int j: (*prob).N) {
+            if (!bool_x_ij[i][j]) {
+                continue;
+            }
             linExpr += x_ij[i][j];
         }
         cnsts.add(linExpr <= 1);
@@ -265,6 +318,9 @@ void rmm::RouteMM::def_FC_cnsts() {
         //
         sprintf(buf, "FC(%d)", i);
         for (int j: (*prob).N) {
+            if (!bool_x_ij[j][i]) {
+                continue;
+            }
             linExpr -= x_ij[j][i];
         }
         cnsts.add(linExpr == 0);
@@ -288,6 +344,9 @@ void rmm::RouteMM::def_AT_cnsts() {
         for (int j: (*prob).N) {
             if (i == (*prob).d && j == (*prob).o)
                 continue;
+            if (!bool_x_ij[i][j]) {
+                continue;
+            }
             linExpr.clear();
             sprintf(buf, "AT(%d,%d)", i, j);
             linExpr += u_i[i] + (*prob).t_ij[i][j];
@@ -314,6 +373,9 @@ void rmm::RouteMM::def_AT_cnsts() {
         linExpr -= u_i[(*prob).n_k[k]];
         linExpr -= (*prob).M;
         for (int j: (*prob).N) {
+            if (!bool_x_ij[(*prob).n_k[k]][j]) {
+                continue;
+            }
             linExpr += (*prob).M * x_ij[(*prob).n_k[k]][j];
         }
         cnsts.add(linExpr <= 0);
@@ -344,6 +406,9 @@ void rmm::RouteMM::def_CP_cnsts() {
     sprintf(buf, "VL");  // Volume Limit
     for (int k: (*prob).K) {
         for (int j: (*prob).N) {
+            if (!bool_x_ij[j][(*prob).n_k[k]]) {
+                continue;
+            }
             linExpr += (*prob).v_k[k] * x_ij[j][(*prob).n_k[k]];
         }
     }
@@ -354,6 +419,9 @@ void rmm::RouteMM::def_CP_cnsts() {
     sprintf(buf, "WL");  // Weight Limit
     for (int k: (*prob).K) {
         for (int j: (*prob).N) {
+            if (!bool_x_ij[j][(*prob).n_k[k]]) {
+                continue;
+            }
             linExpr += (*prob).w_k[k] * x_ij[j][(*prob).n_k[k]];
         }
     }
@@ -366,6 +434,9 @@ void rmm::RouteMM::def_CP_cnsts() {
         for (int j: (*prob).N) {
             if (i == (*prob).d && j == (*prob).o)
                 continue;
+            if (!bool_x_ij[i][j]) {
+                continue;
+            }
             linExpr += (*prob).t_ij[i][j] * x_ij[i][j];
         }
     }
@@ -380,6 +451,9 @@ void rmm::RouteMM::def_objF() {
     IloExpr objF(env);
     for (int k: (*prob).K) {
         for (int j: (*prob).N) {
+            if (!bool_x_ij[j][(*prob).n_k[k]]) {
+                continue;
+            }
             objF += (*prob).r_k[k] * x_ij[j][(*prob).n_k[k]];
         }
     }
@@ -396,11 +470,17 @@ void rmm::RouteMM::def_Ti_cnsts() {
         linExpr.clear();
         sprintf(buf, "ED(%d)", i);
         for (int j: (*prob).N) {
+            if (!bool_x_ij[i][j]) {
+                continue;
+            }
             linExpr += x_ij[i][j];
         }
         for (int k: (*prob).K) {
             if ((*prob).h_k[k] == i) {
                 for (int j: (*prob).N) {
+                    if (!bool_x_ij[(*prob).n_k[k]][j]) {
+                        continue;
+                    }
                     linExpr -= x_ij[(*prob).n_k[k]][j];
                 }
             }

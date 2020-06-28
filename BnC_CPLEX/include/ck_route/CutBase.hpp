@@ -50,13 +50,16 @@ public:
     IloBool isLocalCutAdd;
     int cutCounter;
     //
+    bool **bool_x_ij;
+    //
     CutBase(std::string cut_name){
         this->cut_name = cut_name;
     }
-    CutBase(std::string cut_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd) : CutBase::CutBase(cut_name){
+    CutBase(std::string cut_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd, bool **bool_x_ij) : CutBase::CutBase(cut_name){
         this->cutManagerType = cutManagerType;
         this->isLocalCutAdd = isLocalCutAdd;
         this->cutCounter = 0;
+        this->bool_x_ij = bool_x_ij;
     }
     //
     virtual IloRangeArray get_cut_cnsts(double **x_ij, CutComposer *cc) {
@@ -84,6 +87,7 @@ public:
     std::vector<CutBase*> cuts;
     IloEnv env;
     IloNumVar **x_ij;
+    bool **bool_x_ij;
     double **_x_ij;
     std::string logPath;
     TimeTracker *tt;
@@ -94,7 +98,22 @@ public:
     int num4Sep = 0;
     double bestRelVal = DBL_MAX;
     //
-    CutComposer(rut::Problem *prob, std::vector<CutBase*> &cuts, IloEnv &env, IloNumVar **x_ij, std::string logPath, TimeTracker *tt);
+    CutComposer(rut::Problem *prob, std::vector<CutBase*> &cuts, IloEnv &env, IloNumVar **x_ij, bool **bool_x_ij, std::string logPath, TimeTracker *tt) {
+        this->prob = prob;
+        for (CutBase *c: cuts) {
+            this->cuts.push_back(c);
+        }
+        this->env = env;
+        this->x_ij = x_ij;
+        this->bool_x_ij = bool_x_ij;
+        this->logPath = logPath;
+        this->tt = tt;
+        //
+        _x_ij = new IloNum*[(*prob).N.size()];
+        for (int i: (*prob).N) {
+            _x_ij[i] = new IloNum[(*prob).N.size()];
+        }
+    }
     ~CutComposer() {
         for (CutBase* cut: cuts) {
             delete cut;
@@ -113,7 +132,7 @@ public:
 class SE_cut : public CutBase {
 public:
     std::set<std::set<int>> generatedSets;
-    SE_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd): CutBase(ch_name, cutManagerType, isLocalCutAdd) { }
+    SE_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd, bool **bool_x_ij): CutBase(ch_name, cutManagerType, isLocalCutAdd, bool_x_ij) { }
     ~SE_cut() {
         generatedSets.clear();
     }
@@ -136,7 +155,7 @@ private:
 class CA_cut : public CutBase {
 public:
     std::set<std::set<int>> generatedSets;
-    CA_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd): CutBase(ch_name, cutManagerType, isLocalCutAdd) { }
+    CA_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd, bool **bool_x_ij): CutBase(ch_name, cutManagerType, isLocalCutAdd, bool_x_ij) { }
     ~CA_cut() {
         generatedSets.clear();
     }
@@ -159,7 +178,7 @@ private:
 class RS_cut : public CutBase {
 public :
     std::set<std::set<int>> generatedSets;
-    RS_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd): CutBase(ch_name, cutManagerType, isLocalCutAdd) { }
+    RS_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd, bool **bool_x_ij): CutBase(ch_name, cutManagerType, isLocalCutAdd, bool_x_ij) { }
     ~RS_cut() {
         generatedSets.clear();
     }
@@ -182,7 +201,7 @@ private:
 class IP_cut : public CutBase {
 public:
     std::set<std::set<edge>> generatedSets;
-    IP_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd): CutBase(ch_name, cutManagerType, isLocalCutAdd) { }
+    IP_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd, bool **bool_x_ij): CutBase(ch_name, cutManagerType, isLocalCutAdd, bool_x_ij) { }
     ~IP_cut() {
         generatedSets.clear();
     }
@@ -207,11 +226,11 @@ public:
     CA_cut* ca_cut;
     RS_cut* rs_cut;
     IP_cut* ip_cut;
-    ALL_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd): CutBase(ch_name, cutManagerType, isLocalCutAdd) {
-        this->se_cut = new SE_cut("SE", cutManagerType, isLocalCutAdd);
-        this->ca_cut = new CA_cut("CA", cutManagerType, isLocalCutAdd);
-        this->rs_cut = new RS_cut("RS", cutManagerType, isLocalCutAdd);
-        this->ip_cut = new IP_cut("IP", cutManagerType, isLocalCutAdd);
+    ALL_cut(std::string ch_name, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd, bool **bool_x_ij): CutBase(ch_name, cutManagerType, isLocalCutAdd, bool_x_ij) {
+        this->se_cut = new SE_cut("SE", cutManagerType, isLocalCutAdd, bool_x_ij);
+        this->ca_cut = new CA_cut("CA", cutManagerType, isLocalCutAdd, bool_x_ij);
+        this->rs_cut = new RS_cut("RS", cutManagerType, isLocalCutAdd, bool_x_ij);
+        this->ip_cut = new IP_cut("IP", cutManagerType, isLocalCutAdd, bool_x_ij);
     }
     ~ALL_cut() {
         delete se_cut; delete ca_cut; delete rs_cut; delete ip_cut;

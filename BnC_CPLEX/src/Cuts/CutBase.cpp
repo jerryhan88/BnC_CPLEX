@@ -20,6 +20,9 @@ int getNextNodeByFlow(int n0, CutComposer *cc, const IloCplex::Callback::Context
         if (n0 == i) {
             continue;
         }
+        if (!(cc->bool_x_ij[n0][i])) {
+            continue;
+        }
         double oev = context.getRelaxationPoint(cc->x_ij[n0][i]);
         if (oev > 0.0 && max_OEV < oev) {
             n1 = i;
@@ -211,22 +214,6 @@ std::set<std::set<edge>> get_infeasiblePaths(CutComposer *cc, const IloCplex::Ca
 
 void CutBase::addUserCutwCust(const IloCplex::Callback::Context &context, IloExpr lhs_expr) {
     context.addUserCut(lhs_expr <= 0, cutManagerType, isLocalCutAdd);
-}
-
-CutComposer::CutComposer(rut::Problem *prob, std::vector<CutBase*> &cuts, IloEnv &env, IloNumVar **x_ij, std::string logPath, TimeTracker* tt) {
-    this->prob = prob;
-    for (CutBase *c: cuts) {
-        this->cuts.push_back(c);
-    }
-    this->env = env;
-    this->x_ij = x_ij;
-    this->logPath = logPath;
-    this->tt = tt;
-    //
-    _x_ij = new IloNum*[(*prob).N.size()];
-    for (int i: (*prob).N) {
-        _x_ij[i] = new IloNum[(*prob).N.size()];
-    }
 }
 
 void CutComposer::invoke(const IloCplex::Callback::Context &context) {

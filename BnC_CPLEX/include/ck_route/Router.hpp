@@ -97,9 +97,20 @@ public:
     IloNumVar **x_ij, *u_i;
     CutComposer *cc;
     //
+    bool **bool_x_ij;
+    //
     RouteMM(rut::Problem *prob, TimeTracker* tt, unsigned long time_limit_sec, std::string logPath, std::string lpPath, char vType, bool isTightenModel): Router(prob, tt, time_limit_sec, logPath) {
         this->lpPath = lpPath;
         //
+        bool_x_ij = new bool*[prob->N.size()];
+        for (int i: prob->N) {
+            bool_x_ij[i] = new bool[prob->N.size()];
+            for (int j: prob->N) {
+                bool_x_ij[i][j] = true;
+            }
+        }
+        //
+        preprocessing();
         x_ij = RouteMM::gen_x_ij(prob, env, vType);
         u_i = RouteMM::gen_u_i(prob, env);
         
@@ -112,35 +123,18 @@ public:
         cplex = new IloCplex(*cplexModel);
     }
     ~RouteMM() {
-        for (int i = 0; i < prob->N.size(); i++)
+        for (int i = 0; i < prob->N.size(); i++) {
             delete [] x_ij[i];
-        delete [] x_ij; delete [] u_i;
+            delete [] bool_x_ij[i];
+        }
+            
+        delete [] x_ij; delete [] bool_x_ij; delete [] u_i;
         delete cplexModel; delete cplex;
         env.end();
     }
-    static IloNumVar** gen_x_ij(rut::Problem *prob, IloEnv &env, char vType) {
-        IloNumVar::Type ilo_vType = vType == 'I' ? ILOINT : ILOFLOAT;
-        //
-        char buf[DEFAULT_BUFFER_SIZE];
-        IloNumVar **x_ij = new IloNumVar*[prob->N.size()];
-        for (int i: prob->N) {
-            x_ij[i] = new IloNumVar[prob->N.size()];
-            for (int j: prob->N) {
-                sprintf(buf, "x(%d)(%d)", i, j);
-                x_ij[i][j] = IloNumVar(env, 0.0, 1.0, ilo_vType, buf);
-            }
-        }
-        return x_ij;
-    }
-    static IloNumVar* gen_u_i(rut::Problem *prob, IloEnv &env) {
-        char buf[DEFAULT_BUFFER_SIZE];
-        IloNumVar *u_i = new IloNumVar[prob->N.size()];
-        for (int i: prob->N) {
-            sprintf(buf, "u(%d)", i);
-            u_i[i] = IloNumVar(env, 0.0, DBL_MAX, ILOFLOAT, buf);
-        }
-        return u_i;
-    }
+
+    IloNumVar** gen_x_ij(rut::Problem *prob, IloEnv &env, char vType);
+    IloNumVar* gen_u_i(rut::Problem *prob, IloEnv &env);
     void get_x_ij(double** _x_ij);
     void get_x_ij(IloArray<IloNumArray>& _x_ij);
     void get_u_i(double* _u_i);
@@ -161,9 +155,9 @@ public:
     }
 protected:
     void build_baseModel();
-    std::vector<CutBase*> get_cutInstances(std::vector<std::string> cut_names, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd);
+    std::vector<CutBase*> get_cutInstances(std::vector<std::string> cut_names, IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd, bool **bool_x_ij);
 private:
-    void def_preprocessing();
+    void preprocessing();
     void def_FC_cnsts();
     void def_AT_cnsts();
     void def_CP_cnsts();
@@ -197,8 +191,8 @@ public:
         std::string logPath, std::string lpPath,
         std::vector<std::string> cut_names, bool isTightenModel,
         IloCplex::CutManagement cutManagerType, IloBool isLocalCutAdd) : RouteMM(prob, tt, time_limit_sec, logPath, lpPath, 'I', isTightenModel) {
-        std::vector<CutBase*> cuts = get_cutInstances(cut_names, cutManagerType, isLocalCutAdd);
-        this->cc = new CutComposer(prob, cuts, env, x_ij, logPath, tt);
+        std::vector<CutBase*> cuts = get_cutInstances(cut_names, cutManagerType, isLocalCutAdd, bool_x_ij);
+        this->cc = new CutComposer(prob, cuts, env, x_ij, bool_x_ij, logPath, tt);
         CPXLONG contextMask = 0;
         contextMask |= IloCplex::Callback::Context::Id::Relaxation;
         cplex->use(cc, contextMask);
@@ -272,8 +266,8 @@ public:
     CutComposer *cc;
     //
     RC(rut::Problem *prob, TimeTracker* tt, unsigned long time_limit_sec, std::string logPath, std::string lpPath, std::vector<std::string> cut_names): RouteMM(prob, tt, time_limit_sec, logPath, lpPath, 'L', true)  {
-        std::vector<CutBase*> cuts = get_cutInstances(cut_names, IloCplex::UseCutForce, IloFalse);
-        cc = new CutComposer(prob, cuts, env, x_ij, logPath, nullptr);
+        std::vector<CutBase*> cuts = get_cutInstances(cut_names, IloCplex::UseCutForce, IloFalse, bool_x_ij);
+        cc = new CutComposer(prob, cuts, env, x_ij, bool_x_ij, logPath, nullptr);
         //
         cplex->setOut(env.getNullStream());
         if (logPath != "") {

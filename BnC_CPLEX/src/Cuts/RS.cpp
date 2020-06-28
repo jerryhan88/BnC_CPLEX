@@ -26,6 +26,9 @@ bool RS_cut::validate_LHS(const std::set<int> &S1, rut::Problem *prob, CutCompos
     double lhs = 0.0;
     for (int i: S1) {
         for (int j: S1) {
+            if (!(cc->bool_x_ij[i][j])) {
+                continue;
+            }
             lhs += context.getRelaxationPoint(cc->x_ij[i][j]);
         }
     }
@@ -56,6 +59,9 @@ std::set<std::set<int>> RS_cut::solve_separationProb(CutComposer *cc, const IloC
 void RS_cut::set_LHS_Expr(IloExpr &lhs_expr, IloNumVar **x_ij, const std::set<int> &S1, rut::Problem *prob) {
     for (int i: S1) {
         for (int j: S1) {
+            if (!(bool_x_ij[i][j])) {
+                continue;
+            }
             lhs_expr += x_ij[i][j];
         }
     }
